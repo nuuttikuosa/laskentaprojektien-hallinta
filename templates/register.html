@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Create account</title>
+</head>
+
+<body>
+  <h1>Create account</h1>
+
+  <form action="/register" method="post">
+    <p>
+      Username: <br />
+      <input type="text" name="username" />
+    </p>
+    <p>
+      Email: <br />
+      <input type="text" name="email" />
+    </p>
+     <p>
+      short bio:<br />
+      <textarea name="bio" rows="5" cols="40"></textarea>
+    </p>
+    <p>
+      Password: <br />
+      <input type="password" name="password1" />
+    </p>
+    <p>
+      Retype Password: <br />
+      <input type="password" name="password2" />
+    </p>
+    <input type="submit" value="Create account" />
+  </form>
+
+  <hr />
+  <p>
+    <a href="/">Main page</a>
+  </p>
+</body>
+
+</html>

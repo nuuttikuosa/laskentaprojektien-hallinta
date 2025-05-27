@@ -7,18 +7,19 @@
 
 <body>
   <h1>Calculation projects</h1>
-
-  <p>
-    <a href="/register">Create account</a> |
     {% if session.user_id %}
-    <a href="/logout">Logout</a>
-    {% else %}
-    <a href="/login">login</a>
+    <p>
+      You are signed as {{ session.username }}
+    </p>
     {% endif %}
-  </p>
-
-
-
+    <p>
+      <a href="/register">Create account</a> |
+      {% if session.user_id %}
+      <a href="/logout">Logout</a>
+      {% else %}
+      <a href="/login">login</a>
+      {% endif %}
+    </p>
 </body>
 
 </html>

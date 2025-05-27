@@ -1,10 +1,10 @@
 from werkzeug.security import check_password_hash, generate_password_hash
 import db
 
-def create_user(username, password, email):
+def create_user(username, email, bio, password):
     password_hash = generate_password_hash(password)
-    sql = "INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)"
-    db.execute(sql, [username, password_hash, email])
+    sql = "INSERT INTO users (username, email, bio, password_hash) VALUES (?, ?, ?, ?)"
+    db.execute(sql, [username, email, bio, password_hash ])
 
 def check_login(username, password):
     sql = "SELECT id, password_hash FROM users WHERE username = ?"
