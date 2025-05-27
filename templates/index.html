@@ -12,6 +12,12 @@
       You are signed as {{ session.username }}
     </p>
     {% endif %}
+
+    {% if session.user_id %}
+    <p>
+    <a href="/new_project">Create new project</a>
+    </p>
+    {% endif %}
     <p>
       <a href="/register">Create account</a> |
       {% if session.user_id %}

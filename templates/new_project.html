@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Create project</title>
+</head>
+
+<body>
+  <h1>Create new project</h1>
+
+  <form action="/new_project" method="post">
+    <p>
+      Name: <br />
+      <input type="text" name="name" />
+    </p>
+    <p>
+      Power: <br />
+      <input type="number" name="power" />
+    </p>
+    <p>
+      Left terms: <br />
+      <input type="number" name="left_terms" />
+    </p>
+    <p>
+      Max range: <br />
+      <input type="number" name="max_range" />
+    </p>
+    <p>
+      Project description:<br />
+      <textarea name="description" rows="5" cols="40"></textarea>
+    </p>
+
+    <input type="submit" value="Create project" />
+  </form>
+
+  <hr />
+  <p>
+    <a href="/">Main page</a>
+  </p>
+</body>
+
+</html>
