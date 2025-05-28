@@ -8,7 +8,8 @@ app.secret_key = config.secret_key
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    project_list = projects.get_projects()
+    return render_template("index.html", projects=project_list)
 
 @app.route("/project/<int:project_id>")
 def show_project(project_id):
@@ -20,6 +21,18 @@ def show_project(project_id):
     print(project_parameters[0][0],project_parameters[0][1])
 
     return render_template("project.html", project=project, project_parameters = project_parameters)
+
+@app.route("/remove/<int:project_id>", methods=["GET", "POST"])
+def remove_message(project_id):
+    project = projects.get_project(project_id)
+
+    if request.method == "GET":
+        return render_template("remove.html", project=project)
+
+    if request.method == "POST":
+        if "continue" in request.form:
+            projects.remove_project(project["id"])
+        return redirect("/project/" + str(project["id"]))
 
 @app.route("/new_project", methods=["GET", "POST"])
 def new_project():

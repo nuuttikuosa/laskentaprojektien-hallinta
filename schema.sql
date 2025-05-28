@@ -24,7 +24,8 @@ CREATE TABLE projects (
     description TEXT,
     range_min INTEGER,
     range_max INTEGER,
-    user_id INTEGER REFERENCES users
+    user_id INTEGER REFERENCES users,
+    status_id INTEGER REFERENCES project_statuses
 );
 
 CREATE TABLE project_parameters (

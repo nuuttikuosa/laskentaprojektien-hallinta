@@ -26,6 +26,16 @@
       <a href="/login">login</a>
       {% endif %}
     </p>
+    <h2>Current active projects</h2>
+    <hr />
+    {% for project in projects %}
+      <p>
+        <a href="/project/{{ project.id }}">{{ project.name }}</a>
+      </p>
+      <hr />
+    {% endfor %}
+
+
 </body>
 
 </html>

@@ -16,7 +16,9 @@
     <p>
       {{ project.description }}
     </p>
-
+     <p>
+      Project status: {{ project.status }}
+    </p>
     <hr />
     <h2>Project parameters</h2>
     {% for parameter in project_parameters %}
@@ -25,6 +27,14 @@
       </p>
     {% endfor %}
     <hr />
+    {% if project.user_id == session.user_id %}
+      <p>
+        {% if project.status != 'Deleted' %}
+          <a href="/hold/{{ project.id }}">Put project on hold</a> |
+          <a href="/remove/{{ project.id }}">Remove project</a>
+        {% endif %}
+     </p>
+    {% endif %}
 
     <p>
       <a href="/">Etusivulle</a>
