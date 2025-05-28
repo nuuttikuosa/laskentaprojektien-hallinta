@@ -6,22 +6,40 @@ CREATE TABLE users (
     bio TEXT
 );
 
-CREATE TABLE projects (
-    id INTEGER PRIMARY KEY,
-    title TEXT,
-    parameter_one INTEGER,
-    parameter_two INTEGER,
-    description TEXT,
-    max_tasks INTEGER,
-    user_id INTEGER REFERENCES users
-);
-
-CREATE TABLE statuses (
+CREATE TABLE project_statuses (
     id INTEGER PRIMARY KEY,
     name TEXT UNIQUE NOT NULL
 );
 
-INSERT INTO statuses (id, name) VALUES
+INSERT INTO project_statuses (id, name) VALUES
+    (0, 'Not Started'),
+    (1, 'Ongoing'),
+    (2, 'Completed'),
+    (3, 'On Hold'),
+    (4, 'Deleted');
+
+CREATE TABLE projects (
+    id INTEGER PRIMARY KEY,
+    name TEXT,
+    description TEXT,
+    range_min INTEGER,
+    range_max INTEGER,
+    user_id INTEGER REFERENCES users
+);
+
+CREATE TABLE project_parameters (
+    id INTEGER PRIMARY KEY,
+    project_id INTEGER NOT NULL REFERENCES projects,
+    name TEXT,
+    value INTEGER
+);
+
+CREATE TABLE task_statuses (
+    id INTEGER PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL
+);
+
+INSERT INTO task_statuses (id, name) VALUES
     (0, 'Free'),
     (1, 'Assigned'),
     (2, 'In Progress'),
@@ -30,10 +48,9 @@ INSERT INTO statuses (id, name) VALUES
 
 CREATE TABLE tasks (
     id INTEGER PRIMARY KEY,
-    task INTEGER,
     content TEXT,
     updated_at TEXT,
     user_id INTEGER REFERENCES users,
     project_id INTEGER REFERENCES projects,
-    status INTEGER REFERENCES statuses
+    status INTEGER REFERENCES task_statuses
 );

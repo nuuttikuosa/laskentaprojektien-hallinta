@@ -23,14 +23,13 @@ def new_project():
         return render_template("new_project.html")
 
     if request.method == "POST":
-       title = request.form["name"]
-       parameter_one = request.form["power"]
-       parameter_two = request.form["left_terms"]
-       max_tasks = request.form["max_range"]
+       name = request.form["name"]
+       range_min = request.form["range_min"]
+       range_max = request.form["range_max"]
        description = request.form["description"]
        user_id = session["user_id"]
 
-    project_id = projects.add_project(title, parameter_one, parameter_two, max_tasks, description, user_id)
+    project_id = projects.add_project(name, range_min, range_max, description, user_id)
     return redirect("/project/" + str(project_id))
 
 @app.route("/register", methods=["GET", "POST"])
