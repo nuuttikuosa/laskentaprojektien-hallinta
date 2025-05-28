@@ -14,7 +14,12 @@ def index():
 def show_project(project_id):
     project = projects.get_project(project_id)
     #tasks = projects.get_tasks(thread_id)
-    return render_template("project.html", project=project)
+
+    project_parameters= projects.get_project_parameters(project_id)
+
+    print(project_parameters[0][0],project_parameters[0][1])
+
+    return render_template("project.html", project=project, project_parameters = project_parameters)
 
 @app.route("/new_project", methods=["GET", "POST"])
 def new_project():
@@ -23,13 +28,22 @@ def new_project():
         return render_template("new_project.html")
 
     if request.method == "POST":
-       name = request.form["name"]
-       range_min = request.form["range_min"]
-       range_max = request.form["range_max"]
-       description = request.form["description"]
-       user_id = session["user_id"]
+        name = request.form["name"]
+        range_min = request.form["range_min"]
+        range_max = request.form["range_max"]
+        description = request.form["description"]
+        user_id = session["user_id"]
+
+        parameter_names = request.form.getlist('parameter_names[]')
+        parameter_values = request.form.getlist('parameter_values[]')
 
     project_id = projects.add_project(name, range_min, range_max, description, user_id)
+
+    for name, value in zip(parameter_names, parameter_values):
+        if name and value:
+            projects.add_parameter(name, value, project_id)
+
+
     return redirect("/project/" + str(project_id))
 
 @app.route("/register", methods=["GET", "POST"])
