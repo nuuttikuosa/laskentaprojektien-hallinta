@@ -22,9 +22,9 @@ def add_project(name, range_min, range_max, description, user_id):
 
     return project_id
 
-def remove_project(project_id):
-    sql = "UPDATE projects SET status_id = 4 WHERE id = ?"
-    db.execute(sql, (project_id,))
+def update_project_status(project_id, new_status):
+    sql = "UPDATE projects SET status_id = ? WHERE id = ?"
+    db.execute(sql, (new_status, project_id))
 
 def get_project_parameters(project_id):
     sql = "SELECT id, name, value FROM project_parameters WHERE project_id = ?"

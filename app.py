@@ -23,7 +23,7 @@ def show_project(project_id):
     return render_template("project.html", project=project, project_parameters = project_parameters)
 
 @app.route("/remove/<int:project_id>", methods=["GET", "POST"])
-def remove_message(project_id):
+def remove_project(project_id):
     project = projects.get_project(project_id)
 
     if request.method == "GET":
@@ -31,8 +31,33 @@ def remove_message(project_id):
 
     if request.method == "POST":
         if "continue" in request.form:
-            projects.remove_project(project["id"])
+            projects.update_project_status(project["id"], 4)
         return redirect("/project/" + str(project["id"]))
+
+@app.route("/hold/<int:project_id>", methods=["GET", "POST"])
+def set_project_on_hold(project_id):
+    project = projects.get_project(project_id)
+
+    if request.method == "GET":
+        return render_template("hold.html", project=project)
+
+    if request.method == "POST":
+        if "continue" in request.form:
+            projects.update_project_status(project["id"], 3)
+        return redirect("/project/" + str(project["id"]))
+
+@app.route("/reactivate/<int:project_id>", methods=["GET", "POST"])
+def reactivate_project(project_id):
+    project = projects.get_project(project_id)
+
+    if request.method == "GET":
+        return render_template("reactivate.html", project=project)
+
+    if request.method == "POST":
+        if "continue" in request.form:
+            projects.update_project_status(project["id"], 1)
+        return redirect("/project/" + str(project["id"]))
+
 
 @app.route("/new_project", methods=["GET", "POST"])
 def new_project():

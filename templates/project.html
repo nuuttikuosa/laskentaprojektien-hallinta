@@ -30,7 +30,12 @@
     {% if project.user_id == session.user_id %}
       <p>
         {% if project.status != 'Deleted' %}
-          <a href="/hold/{{ project.id }}">Put project on hold</a> |
+          {% if project.status == 'On Hold' %}
+            <a href="/reactivate/{{ project.id }}">Reactivate project</a> |
+          {% else %}
+            <a href="/hold/{{ project.id }}">Put project on hold</a> |
+          {% endif %}
+
           <a href="/remove/{{ project.id }}">Remove project</a>
         {% endif %}
      </p>
