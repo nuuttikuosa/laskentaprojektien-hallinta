@@ -119,12 +119,14 @@ def login():
         password = request.form["password"]
 
         user_id = users.check_login(username, password)
-        if user_id:
-            session["user_id"] = user_id
-            session["username"] = username
-            return redirect("/")
-        else:
-            return "ERROR: Wrong username or password"
+        if not user_id:
+            return render_template("login.html", error="Wrong username or password")
+
+        session["user_id"] = user_id
+        session["username"] = username
+        return redirect("/")
+
+
 
 @app.route("/logout")
 def logout():
