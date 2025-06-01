@@ -1,5 +1,16 @@
 import db
 
+def search(keyword):
+    sql = """SELECT p.id, p.name, s.name as status
+             FROM projects p, project_statuses s
+             WHERE p.status_id = s.id
+             AND s.name <> 'Deleted'
+             AND (p.name LIKE ? OR p.description LIKE ?)
+             ORDER BY p.id DESC"""
+    keyword = f"%{keyword}%"
+    return db.query(sql, [keyword, keyword])
+
+
 def get_project(project_id):
     sql = """SELECT p.id, p.name, p.range_min, p.range_max, p.description, p.user_id, s.name as status
               FROM projects p, project_statuses s

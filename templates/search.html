@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Project search</title>
+</head>
+
+<body>
+  <h1>Project search</h1>
+
+  <form action="/projects/search" method="get">
+    <p>
+      Keyword:
+      {% if keyword %}
+      <input type="text" name="keyword" value="{{ keyword }}" />
+      {% else %}
+      <input type="text" name="keyword" />
+      {% endif %}
+    </p>
+    <input type="submit" value="Search" />
+  </form>
+
+  {% if keyword %}
+  <hr />
+  <h2>Results</h2>
+
+  <ul>
+  {% for project in results %}
+    <li>
+      <a href="/project/{{ project.id }}">{{ project.name }}</a>
+    </li>
+  {% endfor %}
+  </ul>
+  {% endif %}
+
+    <p>
+      <a href="/">Main page</a>
+    </p>
+</body>
+
+</html>

@@ -18,8 +18,6 @@ def show_project(project_id):
 
     project_parameters= projects.get_project_parameters(project_id)
 
-    print(project_parameters[0][0],project_parameters[0][1])
-
     return render_template("project.html", project=project, project_parameters = project_parameters)
 
 @app.route("/remove/<int:project_id>", methods=["GET", "POST"])
@@ -58,6 +56,12 @@ def reactivate_project(project_id):
             projects.update_project_status(project["id"], 1)
         return redirect("/project/" + str(project["id"]))
 
+@app.route("/projects/search", methods=['GET'])
+def search_projects():
+    keyword = request.args.get("keyword")
+    results = projects.search(keyword) if keyword else []
+    return render_template("search.html", keyword=keyword, results=results)
+
 
 @app.route("/new_project", methods=["GET", "POST"])
 def new_project():
@@ -75,11 +79,11 @@ def new_project():
         parameter_names = request.form.getlist('parameter_names[]')
         parameter_values = request.form.getlist('parameter_values[]')
 
-    project_id = projects.add_project(name, range_min, range_max, description, user_id)
+        project_id = projects.add_project(name, range_min, range_max, description, user_id)
 
-    for name, value in zip(parameter_names, parameter_values):
-        if name and value:
-            projects.add_parameter(name, value, project_id)
+        for name, value in zip(parameter_names, parameter_values):
+            if name and value:
+                projects.add_parameter(name, value, project_id)
 
 
     return redirect("/project/" + str(project_id))
