@@ -1,7 +1,9 @@
 import sqlite3
 from flask import Flask
-from flask import redirect, render_template, request, session
-import config, users, projects
+from flask import redirect, render_template, request, session, abort
+import config
+import users
+import projects
 
 app = Flask(__name__)
 app.secret_key = config.secret_key
@@ -63,6 +65,29 @@ def search_projects():
     return render_template("search.html", keyword=keyword, results=results)
 
 
+@app.route("/edit/<int:project_id>", methods=["GET", "POST"])
+def edit(project_id):
+
+    project = projects.get_project(project_id)
+    if session["user_id"] != project["user_id"]:
+        abort(403)
+
+    if request.method == "GET":
+
+        project_parameters = projects.get_project_parameters(project_id)
+
+        return render_template("edit.html", project=project, project_parameters=project_parameters)
+
+    if request.method == "POST":
+        name = request.form["name"]
+        range_min = request.form["range_min"]
+        range_max = request.form["range_max"]
+        description = request.form["description"]
+
+        projects.update_project(name, range_min, range_max, description, project_id)
+
+        return redirect("/project/" + str(project_id))
+
 @app.route("/new_project", methods=["GET", "POST"])
 def new_project():
 
@@ -86,7 +111,7 @@ def new_project():
                 projects.add_parameter(name, value, project_id)
 
 
-    return redirect("/project/" + str(project_id))
+        return redirect("/project/" + str(project_id))
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -130,6 +155,6 @@ def login():
 
 @app.route("/logout")
 def logout():
-    del session["user_id"]
-    del session["username"]
+    session.pop("user_id", None)
+    session.pop("username", None)
     return redirect("/")

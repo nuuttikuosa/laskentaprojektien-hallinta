@@ -33,6 +33,12 @@ def add_project(name, range_min, range_max, description, user_id):
 
     return project_id
 
+def update_project(name, range_min, range_max, description, project_id):
+    sql = """UPDATE projects
+             SET name = ?, range_min = ?, range_max = ?, description = ?
+             WHERE id = ?"""
+    db.execute(sql, [name, range_min, range_max, description, project_id])
+
 def update_project_status(project_id, new_status):
     sql = "UPDATE projects SET status_id = ? WHERE id = ?"
     db.execute(sql, (new_status, project_id))

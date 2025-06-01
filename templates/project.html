@@ -29,6 +29,7 @@
     <hr />
     {% if project.user_id == session.user_id %}
       <p>
+        <a href="/edit/{{ project.id }}">Edit project</a> |
         {% if project.status != 'Deleted' %}
           {% if project.status == 'On Hold' %}
             <a href="/reactivate/{{ project.id }}">Reactivate project</a> |
