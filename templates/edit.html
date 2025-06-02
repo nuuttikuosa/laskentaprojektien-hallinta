@@ -28,7 +28,15 @@
 
 
     <input type="submit" value="Save project" />
+
   </form>
+  <br />
+  {% if project.status == "Not Started" %}
+  <form action="/edit/{{ project.id }}/generate_tasks" method="GET">
+    <button type="submit">Generate tasks</button>
+  </form>
+  {% endif %}
+
 
   <hr />
   <p>

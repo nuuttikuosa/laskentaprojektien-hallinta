@@ -27,6 +27,20 @@
       </p>
     {% endfor %}
     <hr />
+    <h2>Tasks</h2>
+
+    {% if tasks %}
+      <ul>
+      {% for task in tasks %}
+        <li>
+            {{ task["content"] }} — Status: {{ task["status"] }} - Owner: {{ task["user_id"] }}
+        </li>
+      {% endfor %}
+      </ul>
+    {% else %}
+      <p>No tasks yet for this project.</p>
+    {% endif %}
+
     {% if project.user_id == session.user_id %}
       <p>
         <a href="/edit/{{ project.id }}">Edit project</a> |
