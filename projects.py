@@ -1,4 +1,5 @@
 import db
+import constants
 
 def search(keyword):
     sql = """SELECT p.id, p.name, s.name as status
@@ -28,7 +29,7 @@ def get_projects():
 
 def add_project(name, range_min, range_max, description, user_id):
     sql = "INSERT INTO projects (name, range_min, range_max, description, user_id, status_id) VALUES (?, ?, ?, ?, ?, ?)"
-    db.execute(sql, [name, range_min, range_max, description, user_id, 0])
+    db.execute(sql, [name, range_min, range_max, description, user_id, constants.PROJECT_STATUS_NOT_STARTED])
     project_id = db.last_insert_id()
 
     return project_id
@@ -50,3 +51,17 @@ def get_project_parameters(project_id):
 def add_parameter(name, value, project_id):
     sql = "INSERT INTO project_parameters (name, value, project_id) VALUES (?, ?, ?)"
     db.execute(sql, [name, value, project_id])
+
+def generate_tasks(min, max, project_id):
+    sql = "INSERT INTO tasks (content, project_id, status) VALUES (?, ?, ?)"
+    for i in range(min, max + 1):
+        db.execute(sql, [i, project_id, constants.TASK_STATUS_FREE])
+
+def get_tasks(project_id):
+    sql = """SELECT t.id, t.content, t.updated_at, t.user_id, s.name as status
+             FROM tasks t, task_statuses s
+             WHERE t.status = s.id AND
+             t.project_id = ?
+             AND s.name <> 'Deleted'
+             ORDER BY t.id ASC"""
+    return db.query(sql, [project_id])
