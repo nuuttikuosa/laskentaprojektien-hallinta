@@ -116,6 +116,22 @@ def generate_tasks(project_id):
 
         return redirect("/project/" + str(project_id))
 
+@app.route("/project/<int:project_id>/reserve_tasks", methods=["GET","POST"])
+def reserve_tasks(project_id):
+    project = projects.get_project(project_id)
+
+
+    if request.method == "GET":
+        number_of_free_tasks = projects.get_number_of_tasks(project_id, constants.TASK_STATUS_FREE)
+        return render_template("reserve_tasks.html", project = project, number_of_free_tasks=number_of_free_tasks)
+
+    if request.method == "POST":
+        user_id = session["user_id"]
+        requested_number_of_tasks=int(request.form["requested_number_of_tasks"])
+        projects.reserve_tasks(project_id, user_id, requested_number_of_tasks)
+
+        return redirect(f"/project/{project_id}")
+
 @app.route("/new_project", methods=["GET", "POST"])
 def new_project():
 

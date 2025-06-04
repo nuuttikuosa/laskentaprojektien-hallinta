@@ -40,9 +40,11 @@
     {% else %}
       <p>No tasks yet for this project.</p>
     {% endif %}
+    <hr />
+    <p>
+      <a href="/project/{{ project.id}}/reserve_tasks">Reserve tasks</a> |
 
     {% if project.user_id == session.user_id %}
-      <p>
         <a href="/edit/{{ project.id }}">Edit project</a> |
         {% if project.status != 'Deleted' %}
           {% if project.status == 'On Hold' %}

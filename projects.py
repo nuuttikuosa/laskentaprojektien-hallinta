@@ -65,3 +65,39 @@ def get_tasks(project_id):
              AND s.name <> 'Deleted'
              ORDER BY t.id ASC"""
     return db.query(sql, [project_id])
+
+def get_number_of_tasks(project_id, status):
+    sql = """SELECT COUNT(*)
+             FROM tasks t
+             WHERE t.project_id = ?
+             AND t.status = ?"""
+    return db.query(sql, [project_id, status])[0][0]
+
+def reserve_tasks(project_id, user_id, number_of_tasks):
+    sql = """SELECT id FROM tasks
+             WHERE project_id = ? AND status = ?
+             ORDER BY content ASC
+             LIMIT ?"""
+    free_tasks = db.query(sql, [project_id, constants.TASK_STATUS_FREE, number_of_tasks])
+
+    if not free_tasks:
+        return 0
+
+    for task in free_tasks:
+        task_id = task["id"]
+        sql = "UPDATE tasks SET user_id = ?, status = ? WHERE id = ?"
+        db.execute(sql, [user_id, constants.TASK_STATUS_ASSIGNED, task_id])
+
+
+
+    return len(free_tasks)
+
+def get_user_tasks(user_id):
+    sql = """SELECT t.id, t.content, t.updated_at, p.name as project_name, s.name as status
+             FROM tasks t, projects p, task_statuses s
+             WHERE t.project_id = p.id AND
+             t.status = s.id AND
+             t.user_id = ?
+             AND s.name <> 'Deleted'
+             ORDER BY t.id ASC"""
+    return db.query(sql, [user_id])
