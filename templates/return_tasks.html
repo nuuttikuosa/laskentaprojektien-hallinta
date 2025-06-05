@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Login</title>
+</head>
+
+<body>
+  <h1>Return tasks</h1>
+
+  {% if error %}
+    <p style="color: red;">{{ error }}</p>
+  {% endif %}
+
+  <form action="/return" method="post" enctype="multipart/form-data">
+
+    Select project:
+    <select name="project_id">
+        {% for project in projects %}
+            <option value="{{ project.id }}">{{ project.name }}</option>
+        {% endfor %}
+    </select>
+
+    <p>
+        Upload log file (.txt):
+        <input type="file" name="log_file" accept=".txt">
+    </p>
+
+    <input type="submit" value="Return file" />
+  </form>
+
+  <hr />
+  {% if results %}
+  <h2> Validation results</h2>
+  <table border="1" cellpadding="5">
+    <tr>
+        <th>Row</th>
+        <th>Status</th>
+    </tr>
+    {% for result in results %}
+        <tr>
+            <td>{{ result.row }}</td>
+            <td>{{ result.status }}</td>
+        </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+
+
+  <p>
+    <a href="/">Main page</a>
+  </p>
+</body>
+
+</html>

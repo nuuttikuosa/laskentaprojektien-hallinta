@@ -5,6 +5,7 @@ import config
 import users
 import projects
 import constants
+import powersum
 
 app = Flask(__name__)
 app.secret_key = config.secret_key
@@ -131,6 +132,37 @@ def reserve_tasks(project_id):
         projects.reserve_tasks(project_id, user_id, requested_number_of_tasks)
 
         return redirect(f"/project/{project_id}")
+
+@app.route("/return", methods=["GET", "POST"])
+def return_tasks():
+    project_list = projects.get_projects()
+
+    if request.method == "GET":
+        return render_template("return_tasks.html", projects=project_list)
+
+
+    if request.method == "POST":
+
+        log_file = request.files["log_file"]
+
+        if not log_file or log_file.filename == "":
+            return render_template("return_tasks.html", projects=project_list, error="No file selected.")
+
+        content = log_file.read().decode("utf-8")
+        rows = content.splitlines()
+
+    results = []
+
+    for row in rows:
+        is_valid = powersum.validate_powersum(row)
+        result = {
+            "row": row,
+            "status": "OK : " if is_valid else "Validation failed : "
+        }
+        results.append(result)
+
+    return render_template("return_tasks.html", projects=project_list, results=results)
+
 
 @app.route("/new_project", methods=["GET", "POST"])
 def new_project():
