@@ -16,3 +16,32 @@ def check_login(username, password):
             return user_id
 
     return None
+def get_user(user_id):
+    sql = """SELECT id, username, email, bio, image IS NOT NULL has_image
+             FROM users
+             WHERE id = ?"""
+    result = db.query(sql, [user_id])
+    return result[0] if result else None
+
+def update_image(user_id, image):
+    sql = "UPDATE users SET image = ? WHERE id = ?"
+    db.execute(sql, [image, user_id])
+
+def get_image(user_id):
+    sql = "SELECT image FROM users WHERE id = ?"
+    result = db.query(sql, [user_id])
+    return result[0][0] if result else None
+
+def get_tasks(user_id):
+    sql = """SELECT t.id,
+                    t.content,
+                    t.project_id,
+                    p.name AS project_name,
+                    t.updated_at,
+                    ts.name AS status
+             FROM tasks t, projects p, task_statuses ts
+             WHERE t.project_id = p.id AND
+                   t.status = ts.id AND
+                   t.user_id = ?
+             ORDER BY t.updated_at DESC"""
+    return db.query(sql, [user_id])

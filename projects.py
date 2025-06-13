@@ -53,7 +53,7 @@ def add_parameter(name, value, project_id):
     db.execute(sql, [name, value, project_id])
 
 def generate_tasks(min, max, project_id):
-    sql = "INSERT INTO tasks (content, project_id, status) VALUES (?, ?, ?)"
+    sql = "INSERT INTO tasks (content, updated_at, project_id, status) VALUES (?, datetime('now'),?, ?)"
     for i in range(min, max + 1):
         db.execute(sql, [i, project_id, constants.TASK_STATUS_FREE])
 
@@ -83,9 +83,9 @@ def reserve_tasks(project_id, user_id, number_of_tasks):
     if not free_tasks:
         return 0
 
+    sql = "UPDATE tasks SET user_id = ?, status = ?, updated_at = datetime('now') WHERE id = ?"
     for task in free_tasks:
         task_id = task["id"]
-        sql = "UPDATE tasks SET user_id = ?, status = ? WHERE id = ?"
         db.execute(sql, [user_id, constants.TASK_STATUS_ASSIGNED, task_id])
 
 

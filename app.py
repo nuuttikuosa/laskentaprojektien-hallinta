@@ -1,6 +1,6 @@
 import sqlite3
 from flask import Flask
-from flask import redirect, render_template, request, session, abort
+from flask import make_response, redirect, render_template, request, session, abort
 import config
 import users
 import projects
@@ -9,6 +9,10 @@ import powersum
 
 app = Flask(__name__)
 app.secret_key = config.secret_key
+
+def require_login():
+    if "user_id" not in session:
+        abort(403)
 
 @app.route("/")
 def index():
@@ -234,3 +238,41 @@ def logout():
     session.pop("user_id", None)
     session.pop("username", None)
     return redirect("/")
+
+@app.route("/user/<int:user_id>")
+def show_user(user_id):
+    user = users.get_user(user_id)
+    if not user:
+        abort(404)
+    tasks = users.get_tasks(user_id)
+    return render_template("user.html", user=user, tasks=tasks)
+
+@app.route("/add_image", methods=["GET", "POST"])
+def add_image():
+    require_login()
+
+    if request.method == "GET":
+        return render_template("add_image.html")
+
+    if request.method == "POST":
+        file = request.files["image"]
+        if not file.filename.endswith(".png"):
+            return "VIRHE: väärä tiedostomuoto"
+
+        image = file.read()
+        if len(image) > 100 * 1024:
+            return "VIRHE: liian suuri kuva"
+
+        user_id = session["user_id"]
+        users.update_image(user_id, image)
+        return redirect("/user/" + str(user_id))
+
+@app.route("/image/<int:user_id>")
+def show_image(user_id):
+    image = users.get_image(user_id)
+    if not image:
+        abort(404)
+
+    response = make_response(bytes(image))
+    response.headers.set("Content-Type", "image/jpeg")
+    return response

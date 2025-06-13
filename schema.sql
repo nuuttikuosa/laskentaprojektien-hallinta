@@ -3,20 +3,14 @@ CREATE TABLE users (
     username TEXT UNIQUE NOT NULL,
     password_hash TEXT,
     email TEXT,
-    bio TEXT
+    bio TEXT,
+    image BLOB
 );
 
 CREATE TABLE project_statuses (
     id INTEGER PRIMARY KEY,
     name TEXT UNIQUE NOT NULL
 );
-
-INSERT INTO project_statuses (id, name) VALUES
-    (0, 'Not Started'),
-    (1, 'Ongoing'),
-    (2, 'Completed'),
-    (3, 'On Hold'),
-    (4, 'Deleted');
 
 CREATE TABLE projects (
     id INTEGER PRIMARY KEY,
@@ -39,13 +33,6 @@ CREATE TABLE task_statuses (
     id INTEGER PRIMARY KEY,
     name TEXT UNIQUE NOT NULL
 );
-
-INSERT INTO task_statuses (id, name) VALUES
-    (0, 'Free'),
-    (1, 'Assigned'),
-    (2, 'In Progress'),
-    (3, 'Done'),
-    (4, 'Deleted');
 
 CREATE TABLE tasks (
     id INTEGER PRIMARY KEY,

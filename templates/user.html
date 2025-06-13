@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Participant {{ user.username }}</title>
+</head>
+
+<body>
+  <h1>Participant {{ user.username }}</h1>
+
+  {% if user.has_image %}
+  <p>
+    <img src="/image/{{ user.id }}">
+  </p>
+  {% endif %}
+
+  {{user.bio}}
+
+  {% if user.id == session.user_id %}
+  <p>
+    <a href="/add_image">Add profile picture</a>
+  </p>
+  {% endif %}
+
+  <p>
+    The participant has {{ tasks | count }} tasks
+  </p>
+
+  {% if tasks %}
+  <p>
+    The latest update is {{ tasks[0].sent_at }}
+  </p>
+  {% endif %}
+
+  <h2>Tasks</h2>
+
+  <ul>
+  {% for task in tasks %}
+    <li>
+      {{task.project_name}} {{task.content}} {{task.updated_at}} {{task.status}}
+
+
+    </li>
+  {% endfor %}
+  </ul>
+</body>
+
+</html>
