@@ -22,11 +22,14 @@ def index():
 @app.route("/project/<int:project_id>")
 def show_project(project_id):
     project = projects.get_project(project_id)
-    tasks = projects.get_tasks(project_id)
+    if not project:
+        abort(404)
 
+    tasks = projects.get_tasks(project_id)
+    classes = projects.get_classes(project_id)
     project_parameters= projects.get_project_parameters(project_id)
 
-    return render_template("project.html", project=project, project_parameters = project_parameters, tasks=tasks)
+    return render_template("project.html", project=project, project_parameters = project_parameters, tasks=tasks, classes=classes)
 
 @app.route("/remove/<int:project_id>", methods=["GET", "POST"])
 def remove_project(project_id):
@@ -73,8 +76,11 @@ def search_projects():
 
 @app.route("/edit/<int:project_id>", methods=["GET", "POST"])
 def edit(project_id):
+    require_login()
 
     project = projects.get_project(project_id)
+    if not project:
+        abort(404)
     if session["user_id"] != project["user_id"]:
         abort(403)
 
@@ -82,15 +88,43 @@ def edit(project_id):
 
         project_parameters = projects.get_project_parameters(project_id)
 
-        return render_template("edit.html", project=project, project_parameters=project_parameters)
+        all_classes = projects.get_all_classes()
+        classes = {}
+        for my_class in all_classes:
+            classes[my_class] = ""
+        for entry in projects.get_classes(project_id):
+            classes[entry["title"]] = entry["value"]
+
+        return render_template("edit.html", project=project, project_parameters=project_parameters,
+                               classes=classes, all_classes=all_classes)
 
     if request.method == "POST":
         name = request.form["name"]
+        if not name or len(name) > 50:
+            abort(403)
         range_min = request.form["range_min"]
+        if not range_min:
+            abort(403)
         range_max = request.form["range_max"]
+        if not range_max:
+            abort(403)
         description = request.form["description"]
+        if not description or len(description) > 1000:
+            abort(403)
 
-        projects.update_project(name, range_min, range_max, description, project_id)
+        all_classes = projects.get_all_classes()
+
+        classes = []
+        for entry in request.form.getlist("classes"):
+            if entry:
+                class_title, class_value = entry.split(":")
+                if class_title not in all_classes:
+                    abort(403)
+                if class_value not in all_classes[class_title]:
+                    abort(403)
+                classes.append((class_title, class_value))
+
+        projects.update_project(name, range_min, range_max, description, project_id, classes)
 
         return redirect("/project/" + str(project_id))
 
@@ -155,36 +189,58 @@ def return_tasks():
         content = log_file.read().decode("utf-8")
         rows = content.splitlines()
 
-    results = []
+        results = []
 
-    for row in rows:
-        is_valid = powersum.validate_powersum(row)
-        result = {
-            "row": row,
-            "status": "OK : " if is_valid else "Validation failed : "
-        }
-        results.append(result)
+        for row in rows:
+            is_valid = powersum.validate_powersum(row)
+            result = {
+                "row": row,
+                "status": "OK : " if is_valid else "Validation failed : "
+            }
+            results.append(result)
 
     return render_template("return_tasks.html", projects=project_list, results=results)
 
 
 @app.route("/new_project", methods=["GET", "POST"])
 def new_project():
+    require_login()
 
     if request.method == "GET":
-        return render_template("new_project.html")
+
+        classes = projects.get_all_classes()
+        return render_template("new_project.html", classes=classes)
 
     if request.method == "POST":
         name = request.form["name"]
+        if not name or len(name) > 50:
+            abort(403)
         range_min = request.form["range_min"]
+        if not range_min:
+            abort(403)
         range_max = request.form["range_max"]
+        if not range_max:
+            abort(403)
         description = request.form["description"]
+        if not description or len(description) > 1000:
+            abort(403)
         user_id = session["user_id"]
+
+        all_classes = projects.get_all_classes()
+        classes = []
+        for entry in request.form.getlist("classes"):
+            if entry:
+                class_title, class_value = entry.split(":")
+                if class_title not in all_classes:
+                    abort(403)
+                if class_value not in all_classes[class_title]:
+                    abort(403)
+            classes.append((class_title, class_value))
 
         parameter_names = request.form.getlist('parameter_names[]')
         parameter_values = request.form.getlist('parameter_values[]')
 
-        project_id = projects.add_project(name, range_min, range_max, description, user_id)
+        project_id = projects.add_project(name, range_min, range_max, description, user_id, classes)
 
         for name, value in zip(parameter_names, parameter_values):
             if name and value:
@@ -274,5 +330,5 @@ def show_image(user_id):
         abort(404)
 
     response = make_response(bytes(image))
-    response.headers.set("Content-Type", "image/jpeg")
+    response.headers.set("Content-Type", "image/png")
     return response

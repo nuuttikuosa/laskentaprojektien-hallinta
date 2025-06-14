@@ -25,6 +25,18 @@
       Project description:<br />
       <textarea name="description" rows="5" cols="40"></textarea>
     </p>
+    {% for class in classes %}
+      <p>
+        <label for="class{{ class }}">{{ class }}</label>: <br />
+        <select name="classes" id="class{{ class }}">
+          <option value="">(select)</option>
+        {% for option in classes[class] %}
+          <option value="{{ class }}:{{ option }}">{{ option }}</option>
+        {% endfor %}
+        </select>
+      </p>
+    {% endfor %}
+
 
     <div>
       <label for="parameter1_name">Parameter 1 Name:</label>

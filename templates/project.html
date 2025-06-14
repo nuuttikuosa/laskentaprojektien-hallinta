@@ -26,6 +26,14 @@
        {{ parameter.name }} = {{ parameter.value }}
       </p>
     {% endfor %}
+    {% if classes %}
+      <ul>
+      {% for class in classes %}
+        <li>{{ class.title}}: {{ class.value }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+
     <hr />
     <h2>Tasks</h2>
 

@@ -27,18 +27,29 @@ def get_projects():
              ORDER BY p.id DESC"""
     return db.query(sql)
 
-def add_project(name, range_min, range_max, description, user_id):
+def add_project(name, range_min, range_max, description, user_id, classes):
     sql = "INSERT INTO projects (name, range_min, range_max, description, user_id, status_id) VALUES (?, ?, ?, ?, ?, ?)"
     db.execute(sql, [name, range_min, range_max, description, user_id, constants.PROJECT_STATUS_NOT_STARTED])
     project_id = db.last_insert_id()
 
+    sql = "INSERT INTO project_classes (project_id, title, value) VALUES (?, ?, ?)"
+    for class_title, class_value in classes:
+        db.execute(sql, [project_id, class_title, class_value])
+
     return project_id
 
-def update_project(name, range_min, range_max, description, project_id):
+def update_project(name, range_min, range_max, description, project_id, classes):
     sql = """UPDATE projects
              SET name = ?, range_min = ?, range_max = ?, description = ?
              WHERE id = ?"""
     db.execute(sql, [name, range_min, range_max, description, project_id])
+
+    sql = "DELETE FROM project_classes WHERE project_id = ?"
+    db.execute(sql, [project_id])
+
+    sql = "INSERT INTO project_classes (project_id, title, value) VALUES (?, ?, ?)"
+    for class_title, class_value in classes:
+        db.execute(sql, [project_id, class_title, class_value])
 
 def update_project_status(project_id, new_status):
     sql = "UPDATE projects SET status_id = ? WHERE id = ?"
@@ -101,3 +112,19 @@ def get_user_tasks(user_id):
              AND s.name <> 'Deleted'
              ORDER BY t.id ASC"""
     return db.query(sql, [user_id])
+
+def get_all_classes():
+    sql = "SELECT title, value FROM classes ORDER BY id"
+    result = db.query(sql)
+
+    classes = {}
+    for title, value in result:
+        classes[title] = []
+    for title, value in result:
+        classes[title].append(value)
+
+    return classes
+
+def get_classes(item_id):
+    sql = "SELECT title, value FROM project_classes WHERE project_id = ?"
+    return db.query(sql, [item_id])
