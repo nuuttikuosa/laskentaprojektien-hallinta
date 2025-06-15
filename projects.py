@@ -14,10 +14,11 @@ def search(keyword):
 
 def get_project(project_id):
     sql = """SELECT p.id, p.name, p.range_min, p.range_max,
-                    p.description, p.user_id, s.name as status
-              FROM projects p, project_statuses s
-              WHERE p.status_id = s.id AND
-              p.id = ? """
+                    p.description, p.user_id, s.name as status, u.username as username
+             FROM projects p, project_statuses s, users u
+             WHERE p.status_id = s.id AND
+                   p.user_id = u.id AND
+                   p.id = ? """
     result = db.query(sql, [project_id])
     return result[0] if result else None
 
@@ -76,10 +77,11 @@ def generate_tasks(task_min, task_max, project_id):
         db.execute(sql, [i, project_id, constants.TASK_STATUS_FREE])
 
 def get_tasks(project_id):
-    sql = """SELECT t.id, t.content, t.updated_at, t.user_id, s.name as status
-             FROM tasks t, task_statuses s
-             WHERE t.status = s.id AND
-             t.project_id = ?
+    sql = """SELECT t.id, t.content, t.updated_at, t.user_id, u.username as username, s.name as status
+             FROM tasks t, task_statuses s, users u
+             WHERE t.user_id = u.id AND
+                   t.status = s.id AND
+                   t.project_id = ?
              AND s.name <> 'Deleted'
              ORDER BY t.id ASC"""
     return db.query(sql, [project_id])

@@ -41,7 +41,7 @@
       <ul>
       {% for task in tasks %}
         <li>
-            {{ task["content"] }} — Status: {{ task["status"] }} - Owner: {{ task["user_id"] }}
+            {{ task.content }} — Status: {{ task.status }} - Owner: <a href="/user/{{task.user_id}}">{{ task.username }}</a>
         </li>
       {% endfor %}
       </ul>
