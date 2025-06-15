@@ -13,11 +13,13 @@ def search(keyword):
 
 
 def get_project(project_id):
-    sql = """SELECT p.id, p.name, p.range_min, p.range_max, p.description, p.user_id, s.name as status
+    sql = """SELECT p.id, p.name, p.range_min, p.range_max,
+                    p.description, p.user_id, s.name as status
               FROM projects p, project_statuses s
               WHERE p.status_id = s.id AND
               p.id = ? """
-    return db.query(sql, [project_id])[0]
+    result = db.query(sql, [project_id])
+    return result[0] if result else None
 
 def get_projects():
     sql = """SELECT p.id, p.name
@@ -28,8 +30,11 @@ def get_projects():
     return db.query(sql)
 
 def add_project(name, range_min, range_max, description, user_id, classes):
-    sql = "INSERT INTO projects (name, range_min, range_max, description, user_id, status_id) VALUES (?, ?, ?, ?, ?, ?)"
-    db.execute(sql, [name, range_min, range_max, description, user_id, constants.PROJECT_STATUS_NOT_STARTED])
+    sql = """INSERT INTO projects
+             (name, range_min, range_max, description, user_id, status_id)
+             VALUES (?, ?, ?, ?, ?, ?)"""
+    db.execute(sql, [name, range_min, range_max, description, user_id,
+                     constants.PROJECT_STATUS_NOT_STARTED])
     project_id = db.last_insert_id()
 
     sql = "INSERT INTO project_classes (project_id, title, value) VALUES (?, ?, ?)"
@@ -63,9 +68,11 @@ def add_parameter(name, value, project_id):
     sql = "INSERT INTO project_parameters (name, value, project_id) VALUES (?, ?, ?)"
     db.execute(sql, [name, value, project_id])
 
-def generate_tasks(min, max, project_id):
-    sql = "INSERT INTO tasks (content, updated_at, project_id, status) VALUES (?, datetime('now'),?, ?)"
-    for i in range(min, max + 1):
+def generate_tasks(task_min, task_max, project_id):
+    sql = """INSERT INTO tasks
+          (content, updated_at, project_id, status)
+          VALUES (?, datetime('now'),?, ?)"""
+    for i in range(task_min, task_max + 1):
         db.execute(sql, [i, project_id, constants.TASK_STATUS_FREE])
 
 def get_tasks(project_id):
@@ -82,7 +89,9 @@ def get_number_of_tasks(project_id, status):
              FROM tasks t
              WHERE t.project_id = ?
              AND t.status = ?"""
-    return db.query(sql, [project_id, status])[0][0]
+
+    result = db.query(sql, [project_id, status])
+    return result[0][0] if result else 0
 
 def reserve_tasks(project_id, user_id, number_of_tasks):
     sql = """SELECT id FROM tasks
@@ -125,6 +134,6 @@ def get_all_classes():
 
     return classes
 
-def get_classes(item_id):
+def get_classes(project_id):
     sql = "SELECT title, value FROM project_classes WHERE project_id = ?"
-    return db.query(sql, [item_id])
+    return db.query(sql, [project_id])

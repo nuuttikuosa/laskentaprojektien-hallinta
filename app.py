@@ -29,7 +29,8 @@ def show_project(project_id):
     classes = projects.get_classes(project_id)
     project_parameters= projects.get_project_parameters(project_id)
 
-    return render_template("project.html", project=project, project_parameters = project_parameters, tasks=tasks, classes=classes)
+    return render_template("project.html", project=project, project_parameters = project_parameters,
+                           tasks=tasks, classes=classes)
 
 @app.route("/remove/<int:project_id>", methods=["GET", "POST"])
 def remove_project(project_id):
@@ -67,7 +68,7 @@ def reactivate_project(project_id):
             projects.update_project_status(project["id"], constants.PROJECT_STATUS_ONGOING)
         return redirect("/project/" + str(project["id"]))
 
-@app.route("/projects/search", methods=['GET'])
+@app.route("/projects/search", methods=["GET"])
 def search_projects():
     keyword = request.args.get("keyword")
     results = projects.search(keyword) if keyword else []
@@ -142,13 +143,17 @@ def generate_tasks(project_id):
         min = int(request.form["min"])
         max = int(request.form["max"])
         if min < project["range_min"] or max > project["range_max"]:
-            return render_template("generate_tasks.html", project=project, error="Task numbers must be within the project range.")
-        if min > max:
-            return render_template("generate_tasks.html", project=project, error="Smallest task number cannot be larger than largest task number.")
+            return render_template("generate_tasks.html", project=project,
+                                   error="Task numbers must be within the project range.")
+        if max - min < 1:
+            return render_template("generate_tasks.html", project=project,
+                                   error="Smallest task number cannot be larger than largest task number.")
         if project["status"] != "Not Started":
-            return render_template("generate_tasks.html", project=project, error="Project must not be started to generate tasks.")
-        if min == max:
-            return render_template("generate_tasks.html", project=project, error="Smallest task number cannot be equal to largest task number.")
+            return render_template("generate_tasks.html", project=project,
+                                   error="Project must not be started to generate tasks.")
+        if min < 0 or max < 0:
+            return render_template("generate_tasks.html", project=project,
+                                   error="Task numbers must be non-negative.")
 
         projects.generate_tasks(min, max, project_id)
         projects.update_project_status(project_id, constants.PROJECT_STATUS_ONGOING)
@@ -162,7 +167,8 @@ def reserve_tasks(project_id):
 
     if request.method == "GET":
         number_of_free_tasks = projects.get_number_of_tasks(project_id, constants.TASK_STATUS_FREE)
-        return render_template("reserve_tasks.html", project = project, number_of_free_tasks=number_of_free_tasks)
+        return render_template("reserve_tasks.html", project = project,
+                               number_of_free_tasks=number_of_free_tasks)
 
     if request.method == "POST":
         user_id = session["user_id"]
@@ -184,11 +190,11 @@ def return_tasks():
         log_file = request.files["log_file"]
 
         if not log_file or log_file.filename == "":
-            return render_template("return_tasks.html", projects=project_list, error="No file selected.")
+            return render_template("return_tasks.html", projects=project_list,
+                                   error="No file selected.")
 
         content = log_file.read().decode("utf-8")
         rows = content.splitlines()
-
         results = []
 
         for row in rows:
@@ -235,10 +241,10 @@ def new_project():
                     abort(403)
                 if class_value not in all_classes[class_title]:
                     abort(403)
-            classes.append((class_title, class_value))
+                classes.append((class_title, class_value))
 
-        parameter_names = request.form.getlist('parameter_names[]')
-        parameter_values = request.form.getlist('parameter_values[]')
+        parameter_names = request.form.getlist("parameter_names[]")
+        parameter_values = request.form.getlist("parameter_values[]")
 
         project_id = projects.add_project(name, range_min, range_max, description, user_id, classes)
 
