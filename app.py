@@ -318,6 +318,12 @@ def logout():
     session.pop("username", None)
     return redirect("/")
 
+@app.route("/solutions")
+def solutions():
+    require_login()
+    solutions = projects.get_solutions()
+    return render_template("solutions.html", solutions=solutions)
+
 @app.route("/user/<int:user_id>")
 def show_user(user_id):
     user = users.get_user(user_id)

@@ -151,3 +151,11 @@ def add_solution(row, user_id, project_id):
              VALUES (?, ?, ?, datetime('now'))"""
     db.execute(sql, [row, user_id, project_id])
 
+def get_solutions():
+    sql = """SELECT s.id, s.content, s.created_at, s.user_id, s.project_id, u.username as username, p.name as project_name
+             FROM solutions s, users u, projects p
+             WHERE s.user_id = u.id AND
+                   s.project_id = p.id
+             ORDER BY s.created_at DESC"""
+    return db.query(sql)
+
