@@ -49,12 +49,6 @@ CREATE TABLE classes (
     value TEXT
 );
 
-CREATE TABLE classes (
-    id INTEGER PRIMARY KEY,
-    title TEXT,
-    value TEXT
-);
-
 CREATE TABLE project_classes (
     id INTEGER PRIMARY KEY,
     project_id INTEGER REFERENCES projects,

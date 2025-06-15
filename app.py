@@ -34,6 +34,7 @@ def show_project(project_id):
 
 @app.route("/remove/<int:project_id>", methods=["GET", "POST"])
 def remove_project(project_id):
+    require_login()
     project = projects.get_project(project_id)
 
     if request.method == "GET":
@@ -46,6 +47,7 @@ def remove_project(project_id):
 
 @app.route("/hold/<int:project_id>", methods=["GET", "POST"])
 def set_project_on_hold(project_id):
+    require_login()
     project = projects.get_project(project_id)
 
     if request.method == "GET":
@@ -58,6 +60,7 @@ def set_project_on_hold(project_id):
 
 @app.route("/reactivate/<int:project_id>", methods=["GET", "POST"])
 def reactivate_project(project_id):
+    require_login()
     project = projects.get_project(project_id)
 
     if request.method == "GET":
@@ -131,6 +134,7 @@ def edit(project_id):
 
 @app.route("/edit/<int:project_id>/generate_tasks", methods=["GET", "POST"])
 def generate_tasks(project_id):
+    require_login()
 
     project = projects.get_project(project_id)
     if session["user_id"] != project["user_id"]:
@@ -162,6 +166,7 @@ def generate_tasks(project_id):
 
 @app.route("/project/<int:project_id>/reserve_tasks", methods=["GET","POST"])
 def reserve_tasks(project_id):
+    require_login()
     project = projects.get_project(project_id)
 
 
@@ -179,6 +184,7 @@ def reserve_tasks(project_id):
 
 @app.route("/return", methods=["GET", "POST"])
 def return_tasks():
+    require_login()
     project_list = projects.get_projects()
 
     if request.method == "GET":
@@ -266,6 +272,7 @@ def new_project():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    require_login()
     if request.method == "GET":
         return render_template("register.html")
 
@@ -306,6 +313,7 @@ def login():
 
 @app.route("/logout")
 def logout():
+    require_login()
     session.pop("user_id", None)
     session.pop("username", None)
     return redirect("/")

@@ -13,13 +13,18 @@ def process_powersum_log_row(log_row, project_id):
             return True
         except Exception as e:
             print(f"Error processing row '{log_row}': {e}")
+            return False
 
-    elif  difference_between_sides(log_row) == 0:
+    diff = difference_between_sides(log_row)
+    if diff == 0:
         projects.add_solution(log_row, user_id, project_id)
-    else:
+        return True
+    elif diff > 0:
         return False
 
-    return True
+    print(f"Skipping invalid row: {log_row}")
+    return False
+
 
 def difference_between_sides(row: str):
     try:
