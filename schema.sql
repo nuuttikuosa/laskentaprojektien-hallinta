@@ -62,3 +62,17 @@ CREATE TABLE project_classes (
     value TEXT
 );
 
+CREATE TABLE user_logs (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER REFERENCES users,
+    content TEXT,
+    uploaded_at TEXT
+);
+
+CREATE TABLE solutions (
+    id INTEGER PRIMARY KEY,
+    project_id INTEGER REFERENCES projects,
+    user_id INTEGER REFERENCES users,
+    content TEXT,
+    created_at TEXT
+);

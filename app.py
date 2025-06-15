@@ -187,6 +187,11 @@ def return_tasks():
 
     if request.method == "POST":
 
+        project_id = request.form.get("project_id")
+        if not project_id:
+            return render_template("return_tasks.html", projects=project_list,
+                                   error="No project selected.")
+
         log_file = request.files["log_file"]
 
         if not log_file or log_file.filename == "":
@@ -194,11 +199,15 @@ def return_tasks():
                                    error="No file selected.")
 
         content = log_file.read().decode("utf-8")
+
+        user_id = session["user_id"]
+        users.save_log_file(user_id, content)
+
         rows = content.splitlines()
         results = []
 
         for row in rows:
-            is_valid = powersum.validate_powersum(row)
+            is_valid = powersum.process_powersum_log_row(row, project_id)
             result = {
                 "row": row,
                 "status": "OK : " if is_valid else "Validation failed : "

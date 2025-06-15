@@ -45,3 +45,9 @@ def get_tasks(user_id):
                    t.user_id = ?
              ORDER BY t.updated_at DESC"""
     return db.query(sql, [user_id])
+
+def save_log_file(user_id, log_file):
+
+    sql = """INSERT INTO user_logs (user_id, content, uploaded_at)
+             VALUES (?, ?, datetime('now'))"""
+    db.execute(sql, [user_id, log_file])

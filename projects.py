@@ -137,3 +137,15 @@ def get_all_classes():
 def get_classes(project_id):
     sql = "SELECT title, value FROM project_classes WHERE project_id = ?"
     return db.query(sql, [project_id])
+
+def mark_task_done(content, user_id, project_id):
+    sql = """UPDATE tasks
+             SET status = ?, updated_at = datetime('now'), user_id = ?
+             WHERE content = ? AND project_id = ?"""
+    db.execute(sql, [constants.TASK_STATUS_DONE, user_id, content, project_id])
+
+def add_solution(row, user_id, project_id):
+    sql = """INSERT INTO solutions (content, user_id, project_id, created_at)
+             VALUES (?, ?, ?, datetime('now'))"""
+    db.execute(sql, [row, user_id, project_id])
+
