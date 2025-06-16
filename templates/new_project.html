@@ -72,7 +72,7 @@
       <label for="parameter5_value">Parameter 5 Value:</label>
       <input type="text" id="parameter5_value" name="parameter_values[]"><br><br>
     </div>
-
+    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
     <input type="submit" value="Create project" />
   </form>
 

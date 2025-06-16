@@ -12,6 +12,7 @@
     <p>
       Are you sure that you want to remove this project?
     </p>
+    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
     <input type="submit" name="continue" value="Continue" />
     <input type="submit" name="cancel" value="Cancel" />
   </form>

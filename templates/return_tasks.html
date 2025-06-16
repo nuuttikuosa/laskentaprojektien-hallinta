@@ -25,7 +25,7 @@
         Upload log file (.txt):
         <input type="file" name="log_file" accept=".txt">
     </p>
-
+    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
     <input type="submit" value="Return file" />
   </form>
 

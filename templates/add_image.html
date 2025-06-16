@@ -16,6 +16,7 @@
     <p>
       Kuva: <input type="file" name="image" accept=".png" />
     </p>
+    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
     <input type="submit" value="Send" />
   </form>
 </body>

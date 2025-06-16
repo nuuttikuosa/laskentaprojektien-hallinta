@@ -1,4 +1,5 @@
 import sqlite3
+import secrets
 from flask import Flask
 from flask import make_response, redirect, render_template, request, session, abort
 import config
@@ -12,6 +13,12 @@ app.secret_key = config.secret_key
 
 def require_login():
     if "user_id" not in session:
+        abort(403)
+
+def check_csrf():
+    if "csrf_token" not in request.form:
+        abort(403)
+    if request.form["csrf_token"] != session["csrf_token"]:
         abort(403)
 
 @app.route("/")
@@ -41,6 +48,7 @@ def remove_project(project_id):
         return render_template("remove.html", project=project)
 
     if request.method == "POST":
+        check_csrf()
         if "continue" in request.form:
             projects.update_project_status(project["id"], constants.PROJECT_STATUS_DELETED)
         return redirect("/project/" + str(project["id"]))
@@ -54,6 +62,7 @@ def set_project_on_hold(project_id):
         return render_template("hold.html", project=project)
 
     if request.method == "POST":
+        check_csrf()
         if "continue" in request.form:
             projects.update_project_status(project["id"], constants.PROJECT_STATUS_ON_HOLD)
         return redirect("/project/" + str(project["id"]))
@@ -67,6 +76,7 @@ def reactivate_project(project_id):
         return render_template("reactivate.html", project=project)
 
     if request.method == "POST":
+        check_csrf()
         if "continue" in request.form:
             projects.update_project_status(project["id"], constants.PROJECT_STATUS_ONGOING)
         return redirect("/project/" + str(project["id"]))
@@ -103,6 +113,7 @@ def edit(project_id):
                                classes=classes, all_classes=all_classes)
 
     if request.method == "POST":
+        check_csrf()
         name = request.form["name"]
         if not name or len(name) > 50:
             abort(403)
@@ -144,6 +155,7 @@ def generate_tasks(project_id):
         return render_template("generate_tasks.html", project=project)
 
     if request.method == "POST":
+        check_csrf()
         min = int(request.form["min"])
         max = int(request.form["max"])
         if min < project["range_min"] or max > project["range_max"]:
@@ -176,6 +188,7 @@ def reserve_tasks(project_id):
                                number_of_free_tasks=number_of_free_tasks)
 
     if request.method == "POST":
+        check_csrf()
         user_id = session["user_id"]
         requested_number_of_tasks=int(request.form["requested_number_of_tasks"])
         projects.reserve_tasks(project_id, user_id, requested_number_of_tasks)
@@ -192,7 +205,7 @@ def return_tasks():
 
 
     if request.method == "POST":
-
+        check_csrf()
         project_id = request.form.get("project_id")
         if not project_id:
             return render_template("return_tasks.html", projects=project_list,
@@ -233,6 +246,7 @@ def new_project():
         return render_template("new_project.html", classes=classes)
 
     if request.method == "POST":
+        check_csrf()
         name = request.form["name"]
         if not name or len(name) > 50:
             abort(403)
@@ -300,6 +314,8 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
 
+        session["csrf_token"] = secrets.token_hex(16)
+
         user_id = users.check_login(username, password)
         if not user_id:
             return render_template("login.html", error="Wrong username or password")
@@ -310,19 +326,19 @@ def login():
 
 
 
-@app.route("/logout")
+@app.route("/logout", methods=["GET"])
 def logout():
     require_login()
     session.pop("user_id", None)
     session.pop("username", None)
     return redirect("/")
 
-@app.route("/solutions")
+@app.route("/solutions", methods=["GET"])
 def solutions():
     solutions = projects.get_solutions()
     return render_template("solutions.html", solutions=solutions)
 
-@app.route("/user/<int:user_id>")
+@app.route("/user/<int:user_id>", methods=["GET"])
 def show_user(user_id):
     user = users.get_user(user_id)
     if not user:
@@ -338,6 +354,7 @@ def add_image():
         return render_template("add_image.html")
 
     if request.method == "POST":
+        check_csrf()
         file = request.files["image"]
         if not file.filename.endswith(".png"):
             return "VIRHE: väärä tiedostomuoto"
@@ -350,7 +367,7 @@ def add_image():
         users.update_image(user_id, image)
         return redirect("/user/" + str(user_id))
 
-@app.route("/image/<int:user_id>")
+@app.route("/image/<int:user_id>", methods=["GET"])
 def show_image(user_id):
     image = users.get_image(user_id)
     if not image:

@@ -25,7 +25,7 @@
       <input type="text" name="requested_number_of_tasks"/>
     </p>
 
-
+    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
     <input type="submit" value="Request tasks" />
 
     <p>
