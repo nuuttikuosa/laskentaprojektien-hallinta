@@ -272,7 +272,6 @@ def new_project():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    require_login()
     if request.method == "GET":
         return render_template("register.html")
 
