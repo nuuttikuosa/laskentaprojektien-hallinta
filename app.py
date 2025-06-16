@@ -319,7 +319,6 @@ def logout():
 
 @app.route("/solutions")
 def solutions():
-    require_login()
     solutions = projects.get_solutions()
     return render_template("solutions.html", solutions=solutions)
 
