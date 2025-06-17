@@ -1,22 +1,15 @@
-<!DOCTYPE html>
-<html>
+{% extends "layout.html" %}
 
-<head>
-  <title>All found solutions</title>
-</head>
+{% block title %}All found solutions{% endblock %}
 
-<body>
-  <h1>All found solutions</h1>
-    {% for solution in solutions %}
-      <p>
-       {{ solution.content }} — Found by <a href="/user/{{ solution.user_id }}">{{ solution.username }}</a> in project <a href="/project/{{ solution.project_id }}">{{ solution.project_name }}</a> on {{ solution.created_at }}.
-      </p>
-    {% endfor %}
+{% block content %}
+<h1>All found solutions</h1>
+<hr />
+{% for solution in solutions %}
+<p>
+    {{ solution.content }} — Found by <a href="/user/{{ solution.user_id }}">{{ solution.username }}</a> in project <a
+        href="/project/{{ solution.project_id }}">{{ solution.project_name }}</a> on {{ solution.created_at }}.
+</p>
 
-
-    <p>
-      <a href="/">Main page</a>
-    </p>
-</body>
-
-</html>
+{% endfor %}
+{% endblock %}

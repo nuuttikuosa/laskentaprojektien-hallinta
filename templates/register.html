@@ -1,41 +1,31 @@
-<!DOCTYPE html>
-<html>
+{% extends "layout.html" %}
 
-<head>
-  <title>Create account</title>
-</head>
+{% block title %}Create account{% endblock %}
 
-<body>
-  <h1>Create account</h1>
+{% block content %}
+<h2>Create account</h2>
 
-  <form action="/register" method="post">
-    <p>
-      Username: <br />
-      <input type="text" name="username" />
-    </p>
-    <p>
-      Email: <br />
-      <input type="text" name="email" />
-    </p>
-     <p>
-      short bio:<br />
-      <textarea name="bio" rows="5" cols="40"></textarea>
-    </p>
-    <p>
-      Password: <br />
-      <input type="password" name="password1" />
-    </p>
-    <p>
-      Retype Password: <br />
-      <input type="password" name="password2" />
-    </p>
-    <input type="submit" value="Create account" />
-  </form>
-
-  <hr />
+<form action="/register" method="post">
   <p>
-    <a href="/">Main page</a>
+    Username: <br />
+    <input type="text" name="username" />
   </p>
-</body>
-
-</html>
+  <p>
+    Email: <br />
+    <input type="text" name="email" />
+  </p>
+  <p>
+    short bio:<br />
+    <textarea name="bio" rows="5" cols="40"></textarea>
+  </p>
+  <p>
+    Password: <br />
+    <input type="password" name="password1" />
+  </p>
+  <p>
+    Retype Password: <br />
+    <input type="password" name="password2" />
+  </p>
+  <input type="submit" value="Create account" />
+</form>
+{% endblock %}

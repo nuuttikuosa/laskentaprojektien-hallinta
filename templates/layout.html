@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="/static/main.css">
+</head>
+
+<body>
+    <h1>Calculation projects</h1>
+
+    {% if session.user_id %}
+    <p>
+        You are signed as <a href="/user/{{ session.user_id }}">{{ session.username }}</a>
+    </p>
+    {% endif %}
+
+    <p>
+        <a href="/">Main page</a> |
+        <a href="/solutions">Found solutions</a> |
+        <a href="/projects/search">Project Search</a> |
+        {% if session.user_id %}
+        <a href="/new_project">Create new project</a> |
+        <a href="/return">Return tasks</a> |
+        <a href="/logout">Logout</a>
+        {% else %}
+        <a href="/login">Login</a> |
+        <a href="/register">Create account</a>
+        {% endif %}
+    </p>
+
+    {% block content %}{% endblock %}
+</body>
+
+</html>

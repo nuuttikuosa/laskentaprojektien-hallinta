@@ -1,13 +1,9 @@
-<!DOCTYPE html>
-<html>
+{% extends "layout.html" %}
 
-<head>
-  <title>Generate tasks</title>
-</head>
+{% block title %}Calculation projects{% endblock %}
 
-<body>
-error
-    <h1>Generate tasks</h1>
+{% block content %}
+    <h2>Generate tasks</h2>
     {% if error %}
       <p style="color: red;">{{ error }}</p>
     {% endif %}
@@ -38,6 +34,4 @@ error
   <p>
     <a href="/">Main page</a>
   </p>
-</body>
-
-</html>
+{% endblock %}

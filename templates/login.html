@@ -1,33 +1,24 @@
-<!DOCTYPE html>
-<html>
+{% extends "layout.html" %}
 
-<head>
-  <title>Login</title>
-</head>
+{% block title %}Login{% endblock %}
 
-<body>
-  <h1>Login</h1>
+{% block content %}
+<h2>Login</h2>
 
-  {% if error %}
-    <p style="color: red;">{{ error }}</p>
-  {% endif %}
+{% if error %}
+<p style="color: red;">{{ error }}</p>
+{% endif %}
 
-  <form action="/login" method="post">
-    <p>
-      Username: <br />
-      <input type="text" name="username" />
-    </p>
-    <p>
-      Password: <br />
-      <input type="password" name="password" />
-    </p>
-    <input type="submit" value="Login" />
-  </form>
-
-  <hr />
+<form action="/login" method="post">
   <p>
-    <a href="/">Main page</a>
+    Username: <br />
+    <input type="text" name="username" />
   </p>
-</body>
+  <p>
+    Password: <br />
+    <input type="password" name="password" />
+  </p>
+  <input type="submit" value="Login" />
+</form>
 
-</html>
+{% endblock %}

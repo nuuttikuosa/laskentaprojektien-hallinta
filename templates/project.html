@@ -1,74 +1,65 @@
-<!DOCTYPE html>
-<html>
+{% extends "layout.html" %}
 
-<head>
-  <title>{{ project.name }}</title>
-</head>
+{% block title %}{{ project.name }}{% endblock %}
 
-<body>
-  <h1>{{ project.name }}</h1>
-    <p>
-      Range min: {{ project.range_min }}
-    </p>
-    <p>
-      Range max:{{ project.range_max }}
-    </p>
-    <p>
-      {{ project.description }}
-    </p>
-     <p>
-      Project status: {{ project.status }}
-    </p>
-    <hr />
-    <h2>Project parameters</h2>
-    {% for parameter in project_parameters %}
-      <p>
-       {{ parameter.name }} = {{ parameter.value }}
-      </p>
-    {% endfor %}
-    {% if classes %}
-      <ul>
-      {% for class in classes %}
-        <li>{{ class.title}}: {{ class.value }}</li>
-      {% endfor %}
-      </ul>
-    {% endif %}
+{% block content %}
+<h2>{{ project.name }}</h2>
+<p>
+  Range min: {{ project.range_min }}
+</p>
+<p>
+  Range max:{{ project.range_max }}
+</p>
+<p>
+  {{ project.description }}
+</p>
+<p>
+  Project status: {{ project.status }}
+</p>
+<hr />
+<h3>Project parameters</h3>
+{% for parameter in project_parameters %}
+<p>
+  {{ parameter.name }} = {{ parameter.value }}
+</p>
+{% endfor %}
+{% if classes %}
+<ul>
+  {% for class in classes %}
+  <li>{{ class.title}}: {{ class.value }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
 
-    <hr />
-    <h2>Tasks</h2>
+<hr />
+<h3>Tasks</h3>
 
-    {% if tasks %}
-      <ul>
-      {% for task in tasks %}
-        <li>
-            {{ task.content }} — Status: {{ task.status }} - Owner: <a href="/user/{{task.user_id}}">{{ task.username }}</a>
-        </li>
-      {% endfor %}
-      </ul>
-    {% else %}
-      <p>No tasks yet for this project.</p>
-    {% endif %}
-    <hr />
-    <p>
-      <a href="/project/{{ project.id}}/reserve_tasks">Reserve tasks</a> |
+{% if tasks %}
+<ul>
+  {% for task in tasks %}
+  <li>
+    {{ task.content }} — Status: {{ task.status }} - Owner: <a href="/user/{{task.user_id}}">{{ task.username }}</a>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>No tasks yet for this project.</p>
+{% endif %}
+<hr />
+<p>
+  <a href="/project/{{ project.id}}/reserve_tasks">Reserve tasks</a> |
 
-    {% if project.user_id == session.user_id %}
-        <a href="/edit/{{ project.id }}">Edit project</a> |
-        {% if project.status != 'Deleted' %}
-          {% if project.status == 'On Hold' %}
-            <a href="/reactivate/{{ project.id }}">Reactivate project</a> |
-          {% else %}
-            <a href="/hold/{{ project.id }}">Put project on hold</a> |
-          {% endif %}
+  {% if project.user_id == session.user_id %}
+  <a href="/edit/{{ project.id }}">Edit project</a> |
+  {% if project.status != 'Deleted' %}
+  {% if project.status == 'On Hold' %}
+  <a href="/reactivate/{{ project.id }}">Reactivate project</a> |
+  {% else %}
+  <a href="/hold/{{ project.id }}">Put project on hold</a> |
+  {% endif %}
 
-          <a href="/remove/{{ project.id }}">Remove project</a>
-        {% endif %}
-     </p>
-    {% endif %}
-
-    <p>
-      <a href="/">Main page</a>
-    </p>
-</body>
-
-</html>
+  <a href="/remove/{{ project.id }}">Remove project</a>
+  {% endif %}
+</p>
+{% endif %}
+{% endblock %}

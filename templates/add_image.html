@@ -1,24 +1,19 @@
-<!DOCTYPE html>
-<html>
+{% extends "layout.html" %}
 
-<head>
-  <title>Add profile picture</title>
-</head>
+{% block title %}Add profile picture{% endblock %}
 
-<body>
-  <h1>Add profile picture</h1>
+{% block content %}
+<h2>Add profile picture</h2>
 
+<p>
+  Please send a png image under 100 kB.
+</p>
+
+<form action="/add_image" method="post" enctype="multipart/form-data">
   <p>
-   Please send a png image under 100 kB.
+    Kuva: <input type="file" name="image" accept=".png" />
   </p>
-
-  <form action="/add_image" method="post" enctype="multipart/form-data">
-    <p>
-      Kuva: <input type="file" name="image" accept=".png" />
-    </p>
-    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
-    <input type="submit" value="Send" />
-  </form>
-</body>
-
-</html>
+  <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
+  <input type="submit" value="Send" />
+</form>
+{% endblock %}

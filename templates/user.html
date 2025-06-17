@@ -1,48 +1,43 @@
-<!DOCTYPE html>
-<html>
+{% extends "layout.html" %}
 
-<head>
-  <title>Participant {{ user.username }}</title>
-</head>
+{% block title %}Participant {{ user.username }} {% endblock %}
 
-<body>
-  <h1>Participant {{ user.username }}</h1>
+{% block content %}
+<h1>Participant {{ user.username }}</h1>
 
-  {% if user.has_image %}
-  <p>
+{% if user.has_image %}
+<p>
     <img src="/image/{{ user.id }}">
-  </p>
-  {% endif %}
+</p>
+{% endif %}
 
-  {{user.bio}}
+{{user.bio}}
 
-  {% if user.id == session.user_id %}
-  <p>
+{% if user.id == session.user_id %}
+<p>
     <a href="/add_image">Add profile picture</a>
-  </p>
-  {% endif %}
+</p>
+{% endif %}
 
-  <p>
+<p>
     The participant has {{ tasks | count }} tasks
-  </p>
+</p>
 
-  {% if tasks %}
-  <p>
+{% if tasks %}
+<p>
     The latest update is {{ tasks[0].updated_at }}
-  </p>
-  {% endif %}
+</p>
+{% endif %}
 
-  <h2>Tasks</h2>
+<h2>Tasks</h2>
 
-  <ul>
-  {% for task in tasks %}
+<ul>
+    {% for task in tasks %}
     <li>
-      {{task.project_name}} {{task.content}} {{task.updated_at}} {{task.status}}
+        {{task.project_name}} {{task.content}} {{task.updated_at}} {{task.status}}
 
 
     </li>
-  {% endfor %}
-  </ul>
-</body>
-
-</html>
+    {% endfor %}
+</ul>
+{% endblock %}

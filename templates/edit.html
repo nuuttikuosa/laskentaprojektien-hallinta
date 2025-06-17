@@ -1,62 +1,51 @@
-<!DOCTYPE html>
-<html>
+{% extends "layout.html" %}
 
-<head>
-  <title>Edit project</title>
-</head>
+{% block title %}Edit project{% endblock %}
 
-<body>
-  <h1>Edit project</h1>
+{% block content %}
+<h2>Edit project</h2>
 
-  <form action="/edit/{{ project.id }}" method="post">
-    <p>
-      Name: <br />
-      <input type="text" name="name" value="{{ project.name}}"/>
-    </p>
-    <p>
-      Range min: <br />
-      <input type="number" name="range_min" value="{{project.range_min}}" />
-    </p>
-    <p>
-      Range max: <br />
-      <input type="number" name="range_max" value="{{project.range_max}}"/>
-    </p>
-    <p>
-      Project description:<br />
-      <textarea name="description" rows="5" cols="40">{{project.description}}</textarea>
-    </p>
+<form action="/edit/{{ project.id }}" method="post">
+  <p>
+    Name: <br />
+    <input type="text" name="name" value="{{ project.name}}" />
+  </p>
+  <p>
+    Range min: <br />
+    <input type="number" name="range_min" value="{{project.range_min}}" />
+  </p>
+  <p>
+    Range max: <br />
+    <input type="number" name="range_max" value="{{project.range_max}}" />
+  </p>
+  <p>
+    Project description:<br />
+    <textarea name="description" rows="5" cols="40">{{project.description}}</textarea>
+  </p>
 
-    {% for class in all_classes %}
-    <p>
-      <label for="class{{ class }}">{{ class }}</a>: <br />
+  {% for class in all_classes %}
+  <p>
+    <label for="class{{ class }}">{{ class }}</a>: <br />
       <select name="classes" id="class{{ class}}">
         <option value="">(valitse)</option>
-      {% for option in all_classes[class] %}
+        {% for option in all_classes[class] %}
         {% if classes[class] == option %}
         <option value="{{ class }}:{{ option }}" selected>{{ option }}</option>
         {% else %}
         <option value="{{ class }}:{{ option }}">{{ option }}</option>
         {% endif %}
-      {% endfor %}
+        {% endfor %}
       </select>
-    </p>
-    {% endfor %}
-    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
-    <input type="submit" value="Save project" />
-
-  </form>
-  <br />
-  {% if project.status == "Not Started" %}
-  <form action="/edit/{{ project.id }}/generate_tasks" method="GET">
-    <button type="submit">Generate tasks</button>
-  </form>
-  {% endif %}
-
-
-  <hr />
-  <p>
-    <a href="/">Main page</a>
   </p>
-</body>
+  {% endfor %}
+  <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
+  <input type="submit" value="Save project" />
 
-</html>
+</form>
+<br />
+{% if project.status == "Not Started" %}
+<form action="/edit/{{ project.id }}/generate_tasks" method="GET">
+  <button type="submit">Generate tasks</button>
+</form>
+{% endif %}
+{% endblock %}

@@ -1,55 +1,45 @@
-<!DOCTYPE html>
-<html>
+{% extends "layout.html" %}
 
-<head>
-  <title>Login</title>
-</head>
+{% block title %}Return tasks{% endblock %}
 
-<body>
-  <h1>Return tasks</h1>
+{% block content %}
+<h2>Return tasks</h2>
 
-  {% if error %}
-    <p style="color: red;">{{ error }}</p>
-  {% endif %}
+{% if error %}
+<p style="color: red;">{{ error }}</p>
+{% endif %}
 
-  <form action="/return" method="post" enctype="multipart/form-data">
+<form action="/return" method="post" enctype="multipart/form-data">
 
-    Select project:
-    <select name="project_id">
-        {% for project in projects %}
-            <option value="{{ project.id }}">{{ project.name }}</option>
-        {% endfor %}
-    </select>
-
-    <p>
-        Upload log file (.txt):
-        <input type="file" name="log_file" accept=".txt">
-    </p>
-    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
-    <input type="submit" value="Return file" />
-  </form>
-
-  <hr />
-  {% if results %}
-  <h2> Validation results</h2>
-  <table border="1" cellpadding="5">
-    <tr>
-        <th>Row</th>
-        <th>Status</th>
-    </tr>
-    {% for result in results %}
-        <tr>
-            <td>{{ result.row }}</td>
-            <td>{{ result.status }}</td>
-        </tr>
+  Select project:
+  <select name="project_id">
+    {% for project in projects %}
+    <option value="{{ project.id }}">{{ project.name }}</option>
     {% endfor %}
-  </table>
-  {% endif %}
-
+  </select>
 
   <p>
-    <a href="/">Main page</a>
+    Upload log file (.txt):
+    <input type="file" name="log_file" accept=".txt">
   </p>
-</body>
+  <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
+  <input type="submit" value="Return file" />
+</form>
 
-</html>
+<hr />
+{% if results %}
+<h2> Validation results</h2>
+<table border="1" cellpadding="5">
+  <tr>
+    <th>Row</th>
+    <th>Status</th>
+  </tr>
+  {% for result in results %}
+  <tr>
+    <td>{{ result.row }}</td>
+    <td>{{ result.status }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+{% endblock %}
