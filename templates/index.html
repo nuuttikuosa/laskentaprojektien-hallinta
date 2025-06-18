@@ -4,12 +4,12 @@
 
 {% block content %}
 
-    <h2>Current active projects</h2>
-    <hr />
-    {% for project in projects %}
-      <p>
-        <a href="/project/{{ project.id }}">{{ project.name }}</a>
-      </p>
+<h2>Current active projects</h2>
+<hr />
+{% for project in projects %}
+<div class="item">
+  <a href="/project/{{ project.id }}">{{ project.name }}</a>
+</div>
 
-    {% endfor %}
+{% endfor %}
 {% endblock %}
