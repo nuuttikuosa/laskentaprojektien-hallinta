@@ -5,10 +5,6 @@
 {% block content %}
 <h2>Return tasks</h2>
 
-{% if error %}
-<p style="color: red;">{{ error }}</p>
-{% endif %}
-
 <form action="/return" method="post" enctype="multipart/form-data">
 
   Select project:

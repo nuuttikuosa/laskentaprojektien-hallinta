@@ -3,35 +3,32 @@
 {% block title %}Calculation projects{% endblock %}
 
 {% block content %}
-    <h2>Generate tasks</h2>
-    {% if error %}
-      <p style="color: red;">{{ error }}</p>
-    {% endif %}
-    <p>
-        You can generate tasks for the project "{{ project.name }}".
-        The tasks will be numbered consecutively, from the smallest task number to the largest.
+<h2>Generate tasks</h2>
+<p>
+  You can generate tasks for the project "{{ project.name }}".
+  The tasks will be numbered consecutively, from the smallest task number to the largest.
 
 
-  <form action="/edit/{{ project.id }}/generate_tasks" method="post">
-    <p>
-      Smallest task number: <br />
-      <input type="text" name="min"/>
-    </p>
-    <p>
-      Largest task number: <br />
-      <input type="number" name="max"/>
-    </p>
-    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
-    <input type="submit" value="Generate tasks" />
-
-    <p>
-      <a href="/edit/{{ project.id }}">Back to the project edit page</a>
-    </p>
-
-  </form>
-
-  <hr />
+<form action="/edit/{{ project.id }}/generate_tasks" method="post">
   <p>
-    <a href="/">Main page</a>
+    Smallest task number: <br />
+    <input type="text" name="min" />
   </p>
+  <p>
+    Largest task number: <br />
+    <input type="number" name="max" />
+  </p>
+  <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
+  <input type="submit" value="Generate tasks" />
+
+  <p>
+    <a href="/edit/{{ project.id }}">Back to the project edit page</a>
+  </p>
+
+</form>
+
+<hr />
+<p>
+  <a href="/">Main page</a>
+</p>
 {% endblock %}

@@ -4,9 +4,6 @@
 
 {% block content %}
 <h2>Reserve tasks</h2>
-{% if error %}
-<p style="color: red;">{{ error }}</p>
-{% endif %}
 <p>
   You can reserve tasks for the project "{{ project.name }}".
   You will get requested number of tasks, starting from the smallest available task number.

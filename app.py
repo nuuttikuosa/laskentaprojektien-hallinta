@@ -1,7 +1,7 @@
 import sqlite3
 import secrets
 from flask import Flask
-from flask import make_response, redirect, render_template, request, session, abort
+from flask import make_response, flash, redirect, render_template, request, session, abort
 import config
 import users
 import projects
@@ -159,17 +159,17 @@ def generate_tasks(project_id):
         min = int(request.form["min"])
         max = int(request.form["max"])
         if min < project["range_min"] or max > project["range_max"]:
-            return render_template("generate_tasks.html", project=project,
-                                   error="Task numbers must be within the project range.")
+            flash("ERROR: Task numbers must be within the project range", "error")
+            return render_template("generate_tasks.html", project=project)
         if max - min < 1:
-            return render_template("generate_tasks.html", project=project,
-                                   error="Smallest task number cannot be larger than largest task number.")
+            flash("ERROR: Smallest task number cannot be larger than largest task number", "error")
+            return render_template("generate_tasks.html", project=project)
         if project["status"] != "Not Started":
-            return render_template("generate_tasks.html", project=project,
-                                   error="Project must not be started to generate tasks.")
+            flash("ERROR: Project must not be started to generate tasks", "error")
+            return render_template("generate_tasks.html", project=project)
         if min < 0 or max < 0:
-            return render_template("generate_tasks.html", project=project,
-                                   error="Task numbers must be non-negative.")
+            flash("ERROR: Task numbers must be non-negative", "error")
+            return render_template("generate_tasks.html", project=project)
 
         projects.generate_tasks(min, max, project_id)
         projects.update_project_status(project_id, constants.PROJECT_STATUS_ONGOING)
@@ -208,14 +208,14 @@ def return_tasks():
         check_csrf()
         project_id = request.form.get("project_id")
         if not project_id:
-            return render_template("return_tasks.html", projects=project_list,
-                                   error="No project selected.")
+            flash("ERROR: No project selected", "error")
+            return render_template("return_tasks.html", projects=project_list)
 
         log_file = request.files["log_file"]
 
         if not log_file or log_file.filename == "":
-            return render_template("return_tasks.html", projects=project_list,
-                                   error="No file selected.")
+            flash("ERROR: No file selected", "error")
+            return render_template("return_tasks.html", projects=project_list)
 
         content = log_file.read().decode("utf-8")
 
@@ -297,13 +297,15 @@ def register():
         bio = request.form["bio"]
 
         if password1 != password2:
-            return "ERROR: salasanat eivät ole samat"
+            flash("ERROR: The passwords are not the same", "error")
+            return redirect("/register")
 
         try:
             users.create_user(username, email, bio, password1)
             return "Account created"
         except sqlite3.IntegrityError:
-            return "ERROR: Username already exists"
+            flash("ERROR: Username already exists", "error")
+            return redirect("/register")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -318,7 +320,8 @@ def login():
 
         user_id = users.check_login(username, password)
         if not user_id:
-            return render_template("login.html", error="Wrong username or password")
+            flash("ERROR: Wrong username or password", "error")
+            return render_template("login.html")
 
         session["user_id"] = user_id
         session["username"] = username
