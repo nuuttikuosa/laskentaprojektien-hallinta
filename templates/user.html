@@ -11,7 +11,7 @@
 </p>
 {% endif %}
 
-{{user.bio}}
+{{user.bio | show_lines}}
 
 {% if user.id == session.user_id %}
 <p>
