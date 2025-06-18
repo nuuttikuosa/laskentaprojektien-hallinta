@@ -308,8 +308,9 @@ def register():
             return redirect("/register")
 
         try:
-            users.create_user(username, email, bio, password1)
-            return "Account created"
+            user_id = users.create_user(username, email, bio, password1)
+            flash("INFO: Account created successfully", "info")
+            return redirect("/user/" + str(user_id))
         except sqlite3.IntegrityError:
             flash("ERROR: Username already exists", "error")
             return redirect("/register")

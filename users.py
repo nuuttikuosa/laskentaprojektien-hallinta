@@ -6,6 +6,8 @@ def create_user(username, email, bio, password):
     sql = "INSERT INTO users (username, email, bio, password_hash) VALUES (?, ?, ?, ?)"
     db.execute(sql, [username, email, bio, password_hash ])
 
+    return db.last_insert_id()
+
 def check_login(username, password):
     sql = "SELECT id, password_hash FROM users WHERE username = ?"
     result = db.query(sql, [username])
