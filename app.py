@@ -312,13 +312,19 @@ def register():
             flash("ERROR: Invalid username", "error")
             return redirect("/register")
         password1 = request.form["password1"]
+        if not password1 or len(password1) > 50:
+            flash("ERROR: Invalid password", "error")
+            return redirect("/register")
         password2 = request.form["password2"]
+        if not password2 or len(password2) > 50:
+            flash("ERROR: Invalid password", "error")
+            return redirect("/register")
         email = request.form["email"]
         if not email or len(email) > 50:
             flash("ERROR: Invalid email", "error")
             return redirect("/register")
-        bio = request.form["bio"]
-        if not bio or len(bio) > 1000:
+        bio = request.form.get("bio", "")
+        if len(bio) > 1000:
             flash("ERROR: Invalid bio", "error")
             return redirect("/register")
 
