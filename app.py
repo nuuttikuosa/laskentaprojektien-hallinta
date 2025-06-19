@@ -1,7 +1,6 @@
 import sqlite3
 import secrets
 import markupsafe
-import re
 from flask import Flask
 from flask import make_response, flash, redirect, render_template, request, session, abort
 import config

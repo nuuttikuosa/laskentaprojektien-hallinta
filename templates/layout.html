@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
 </head>
@@ -15,19 +16,19 @@
     </p>
     {% endif %}
 
-    <p>
-        <a href="/">Main page</a> |
-        <a href="/solutions">Found solutions</a> |
-        <a href="/projects/search">Project Search</a> |
+    <nav>
+        <a href="/">Main page</a>
+        <a href="/solutions">Found solutions</a>
+        <a href="/projects/search">Project Search</a>
         {% if session.user_id %}
-        <a href="/new_project">Create new project</a> |
-        <a href="/return">Return tasks</a> |
+        <a href="/new_project">Create new project</a>
+        <a href="/return">Return tasks</a>
         <a href="/logout">Logout</a>
         {% else %}
-        <a href="/login">Login</a> |
+        <a href="/login">Login</a>
         <a href="/register">Create account</a>
         {% endif %}
-    </p>
+    </nav>
 
     {% for message in get_flashed_messages() %}
     <div class="info">

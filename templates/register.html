@@ -4,28 +4,29 @@
 
 {% block content %}
 <h2>Create account</h2>
+<p><span class="required-marker">*</span> Required fields</p>
 
 <form action="/register" method="post">
   <p>
-    Username: <br />
-    <input type="text" name="username" maxlength="20"/>
+    <label for="username"><span class="required-marker">*</span>Username:</label> <br />
+    <input type="text" name="username" id="username" maxlength="20" required />
   </p>
   <p>
-    Email: <br />
-    <input type="text" name="email" maxlength="50"/>
+    <label for="email"><span class="required-marker">*</span>Email:</label> <br />
+    <input type="email" name="email" id="email" maxlength="50" required />
   </p>
   <p>
-    short bio:<br />
-    <textarea name="bio" rows="5" cols="40" maxlength="10000"></textarea>
+    <label for="bio">Short bio:</label> <br />
+    <textarea name="bio" id="bio" rows="5" cols="40" maxlength="10000"></textarea>
   </p>
   <p>
-    Password: <br />
-    <input type="password" name="password1" />
+    <label for="password1"><span class="required-marker">*</span>Password:</label> <br />
+    <input type="password" name="password1" id="password1" maxlength="50" required />
   </p>
   <p>
-    Retype Password: <br />
-    <input type="password" name="password2" />
+    <label for="password2"><span class="required-marker">*</span>Retype Password:</label> <br />
+    <input type="password" name="password2" id="password2" maxlength="50" required />
   </p>
-  <input type="submit" value="Create account" />
+  <button type="submit">Create account</button>
 </form>
 {% endblock %}

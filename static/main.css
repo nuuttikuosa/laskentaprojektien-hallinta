@@ -45,3 +45,23 @@ button {
 button:hover {
   background-color: #005f99;
 }
+
+.required-marker {
+  color: red;
+  margin-right: 0.25em;
+  font-weight: bold;
+}
+
+nav {
+  margin: 1em 0;
+}
+
+nav a {
+  margin-right: 1em;
+  text-decoration: none;
+  color: #007acc;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
