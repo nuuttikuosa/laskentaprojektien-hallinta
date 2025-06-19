@@ -8,10 +8,10 @@
   Range min: {{ project.range_min }}
 </p>
 <p>
-  Range max:{{ project.range_max }}
+  Range max: {{ project.range_max }}
 </p>
 <p>
-  {{ project.description | show_lines}}
+  {{ project.description | show_lines }}
 </p>
 <p>
   Project status: {{ project.status }}
@@ -46,20 +46,19 @@
 <p>No tasks yet for this project.</p>
 {% endif %}
 <hr />
-<p>
-  <a href="/project/{{ project.id}}/reserve_tasks">Reserve tasks</a> |
+<nav>
+  <a href="/project/{{ project.id}}/reserve_tasks">Reserve tasks</a>
 
   {% if project.user_id == session.user_id %}
-  <a href="/edit/{{ project.id }}">Edit project</a> |
-  {% if project.status != 'Deleted' %}
-  {% if project.status == 'On Hold' %}
-  <a href="/reactivate/{{ project.id }}">Reactivate project</a> |
-  {% else %}
-  <a href="/hold/{{ project.id }}">Put project on hold</a> |
+    <a href="/edit/{{ project.id }}">Edit project</a>
+    {% if project.status != 'Deleted' %}
+      {% if project.status == 'On Hold' %}
+      <a href="/reactivate/{{ project.id }}">Reactivate project</a>
+      {% else %}
+      <a href="/hold/{{ project.id }}">Put project on hold</a>
+      {% endif %}
+      <a href="/remove/{{ project.id }}">Remove project</a>
+    {% endif %}
   {% endif %}
-
-  <a href="/remove/{{ project.id }}">Remove project</a>
-  {% endif %}
-</p>
-{% endif %}
+</nav>
 {% endblock %}

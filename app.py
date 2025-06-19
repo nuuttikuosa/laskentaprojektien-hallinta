@@ -122,17 +122,33 @@ def edit(project_id):
     if request.method == "POST":
         check_csrf()
         name = request.form["name"]
-        if not name or len(name) > 50:
-            abort(403)
         range_min = request.form["range_min"]
-        if not range_min:
-            abort(403)
         range_max = request.form["range_max"]
-        if not range_max:
-            abort(403)
         description = request.form["description"]
+
+        if not name or len(name) > 50:
+            flash("Project name is required and must be under 50 characters.", "error")
+            return redirect("/edit/" + str(project_id))
+
+        if not range_min.isdigit():
+            flash("Range min must be a positive integer.", "error")
+            return redirect("/edit/" + str(project_id))
+
+        if not range_max.isdigit():
+            flash("Range max must be a positive integer.", "error")
+            return redirect("/edit/" + str(project_id))
+
+        if int(range_min) <= 0 or int(range_max) <= 0:
+            flash("Range min and max must be positive integers.", "error")
+            return redirect("/edit/" + str(project_id))
+
+        if int(range_min) >= int(range_max):
+            flash("Range min must be less than range max.", "error")
+            return redirect("/edit/" + str(project_id))
+
         if not description or len(description) > 1000:
-            abort(403)
+            flash("Description is required and must be under 1000 characters.", "error")
+            return redirect("/edit/" + str(project_id))
 
         all_classes = projects.get_all_classes()
 
@@ -250,7 +266,8 @@ def new_project():
     if request.method == "GET":
 
         classes = projects.get_all_classes()
-        return render_template("new_project.html", classes=classes)
+        return render_template("new_project.html", classes=classes,
+                               max_project_parameters=config.PROJECT_MAX_PARAMETRS)
 
     if request.method == "POST":
         check_csrf()
@@ -270,6 +287,14 @@ def new_project():
 
         if not range_max.isdigit():
             flash("Range max must be a non-negative integer.", "error")
+            return redirect("/new_project")
+
+        if int(range_min) < 0 or int(range_max) < 0:
+            flash("Range min and max must be non-negative integers.", "error")
+            return redirect("/new_project")
+
+        if int(range_min) >= int(range_max):
+            flash("Range min must be less than range max.", "error")
             return redirect("/new_project")
 
         if not description or len(description) > 1000:

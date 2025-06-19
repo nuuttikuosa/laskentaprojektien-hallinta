@@ -7,20 +7,20 @@
 
 <form action="/new_project" method="post">
   <p>
-    Name: <br />
-    <input type="text" name="name" maxlength="50" required />
+    <label for="name">Name:</label><br />
+    <input type="text" name="name" id="name" maxlength="50" required />
   </p>
   <p>
-    Range min: <br />
-    <input type="text" name="range_min" pattern="^[1-9]\d*$" required>
+    <label for="range_min">Range min:</label><br />
+    <input type="text" name="range_min" id="range_min" pattern="^[1-9]\d*$" required>
   </p>
   <p>
-    Range max: <br />
-    <input type="text" name="range_max" pattern="^[1-9]\d*$" required>
+    <label for="range_max">Range max:</label><br />
+    <input type="text" name="range_max" id="range_max" pattern="^[1-9]\d*$" required>
   </p>
   <p>
-    Project description:<br />
-    <textarea name="description" rows="5" cols="40" maxlength="1000" required></textarea>
+    <label for="description">Project description:</label><br />
+    <textarea name="description" id="description" rows="5" cols="40" maxlength="1000" required></textarea>
   </p>
   {% for class in classes %}
   <p>
@@ -35,7 +35,7 @@
   {% endfor %}
 
 
-  {% for i in range(1, 6) %}
+  {% for i in range(1, max_project_parameters+1) %}
   <div>
     <label for="parameter{{ i }}_name">Parameter {{ i }} name:</label>
     <input type="text" id="parameter{{ i }}_name" name="parameter_names[]">
@@ -46,6 +46,6 @@
   {% endfor %}
 
   <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
-  <input type="submit" value="Create project" />
+  <button type="submit">Create project</button>
 </form>
 {% endblock %}
