@@ -50,6 +50,10 @@ def show_project(project_id):
 def remove_project(project_id):
     require_login()
     project = projects.get_project(project_id)
+    if not project:
+        abort(404)
+    if session["user_id"] != project["user_id"]:
+        abort(403)
 
     if request.method == "GET":
         return render_template("remove.html", project=project)
@@ -58,12 +62,18 @@ def remove_project(project_id):
         check_csrf()
         if "continue" in request.form:
             projects.update_project_status(project["id"], constants.PROJECT_STATUS_DELETED)
+            flash("Project has been removed.", "info")
         return redirect("/project/" + str(project["id"]))
 
 @app.route("/hold/<int:project_id>", methods=["GET", "POST"])
 def set_project_on_hold(project_id):
     require_login()
+
     project = projects.get_project(project_id)
+    if not project:
+        abort(404)
+    if session["user_id"] != project["user_id"]:
+        abort(403)
 
     if request.method == "GET":
         return render_template("hold.html", project=project)
@@ -72,12 +82,17 @@ def set_project_on_hold(project_id):
         check_csrf()
         if "continue" in request.form:
             projects.update_project_status(project["id"], constants.PROJECT_STATUS_ON_HOLD)
+            flash("Project has been put on hold.", "info")
         return redirect("/project/" + str(project["id"]))
 
 @app.route("/reactivate/<int:project_id>", methods=["GET", "POST"])
 def reactivate_project(project_id):
     require_login()
     project = projects.get_project(project_id)
+    if not project:
+        abort(404)
+    if session["user_id"] != project["user_id"]:
+        abort(403)
 
     if request.method == "GET":
         return render_template("reactivate.html", project=project)
@@ -86,6 +101,7 @@ def reactivate_project(project_id):
         check_csrf()
         if "continue" in request.form:
             projects.update_project_status(project["id"], constants.PROJECT_STATUS_ONGOING)
+            flash("Project has been reactivated.", "info")
         return redirect("/project/" + str(project["id"]))
 
 @app.route("/projects/search", methods=["GET"])
