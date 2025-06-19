@@ -1,6 +1,7 @@
 import sqlite3
 import secrets
 import markupsafe
+import re
 from flask import Flask
 from flask import make_response, flash, redirect, render_template, request, session, abort
 import config
@@ -254,21 +255,31 @@ def new_project():
 
     if request.method == "POST":
         check_csrf()
-        name = request.form["name"]
-        if not name or len(name) > 50:
-            abort(403)
-        range_min = request.form["range_min"]
-        if not range_min:
-            abort(403)
-        range_max = request.form["range_max"]
-        if not range_max:
-            abort(403)
-        description = request.form["description"]
-        if not description or len(description) > 1000:
-            abort(403)
-        user_id = session["user_id"]
 
+        name = request.form["name"]
+        range_min = request.form["range_min"]
+        range_max = request.form["range_max"]
+        description = request.form["description"]
+
+        if not name or len(name) > 50:
+            flash("Project name is required and must be under 50 characters.", "error")
+            return redirect("/new_project")
+
+        if not range_min.isdigit():
+            flash("Range min must be a non-negative integer.", "error")
+            return redirect("/new_project")
+
+        if not range_max.isdigit():
+            flash("Range max must be a non-negative integer.", "error")
+            return redirect("/new_project")
+
+        if not description or len(description) > 1000:
+            flash("Description is required and must be under 1000 characters.", "error")
+            return redirect("/new_project")
+
+        user_id = session["user_id"]
         all_classes = projects.get_all_classes()
+
         classes = []
         for entry in request.form.getlist("classes"):
             if entry:
@@ -298,10 +309,19 @@ def register():
 
     if request.method == "POST":
         username = request.form["username"]
+        if not username or len(username) > 20:
+            flash("ERROR: Invalid username", "error")
+            return redirect("/register")
         password1 = request.form["password1"]
         password2 = request.form["password2"]
         email = request.form["email"]
+        if not email or len(email) > 50:
+            flash("ERROR: Invalid email", "error")
+            return redirect("/register")
         bio = request.form["bio"]
+        if not bio or len(bio) > 1000:
+            flash("ERROR: Invalid bio", "error")
+            return redirect("/register")
 
         if password1 != password2:
             flash("ERROR: The passwords are not the same", "error")

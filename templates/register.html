@@ -8,15 +8,15 @@
 <form action="/register" method="post">
   <p>
     Username: <br />
-    <input type="text" name="username" />
+    <input type="text" name="username" maxlength="20"/>
   </p>
   <p>
     Email: <br />
-    <input type="text" name="email" />
+    <input type="text" name="email" maxlength="50"/>
   </p>
   <p>
     short bio:<br />
-    <textarea name="bio" rows="5" cols="40"></textarea>
+    <textarea name="bio" rows="5" cols="40" maxlength="10000"></textarea>
   </p>
   <p>
     Password: <br />

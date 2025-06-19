@@ -8,19 +8,19 @@
 <form action="/new_project" method="post">
   <p>
     Name: <br />
-    <input type="text" name="name" />
+    <input type="text" name="name" maxlength="50" required />
   </p>
   <p>
     Range min: <br />
-    <input type="number" name="range_min" />
+    <input type="text" name="range_min" pattern="^[1-9]\d*$" required>
   </p>
   <p>
     Range max: <br />
-    <input type="number" name="range_max" />
+    <input type="text" name="range_max" pattern="^[1-9]\d*$" required>
   </p>
   <p>
     Project description:<br />
-    <textarea name="description" rows="5" cols="40"></textarea>
+    <textarea name="description" rows="5" cols="40" maxlength="1000" required></textarea>
   </p>
   {% for class in classes %}
   <p>
@@ -35,40 +35,16 @@
   {% endfor %}
 
 
+  {% for i in range(1, 6) %}
   <div>
-    <label for="parameter1_name">Parameter 1 Name:</label>
-    <input type="text" id="parameter1_name" name="parameter_names[]">
-    <label for="parameter1_value">Parameter 1 Value:</label>
-    <input type="text" id="parameter1_value" name="parameter_values[]"><br><br>
-  </div>
+    <label for="parameter{{ i }}_name">Parameter {{ i }} name:</label>
+    <input type="text" id="parameter{{ i }}_name" name="parameter_names[]">
 
-  <div>
-    <label for="parameter2_name">Parameter 2 Name:</label>
-    <input type="text" id="parameter2_name" name="parameter_names[]">
-    <label for="parameter2_value">Parameter 2 Value:</label>
-    <input type="text" id="parameter2_value" name="parameter_values[]"><br><br>
+    <label for="parameter{{ i }}_value">Parameter {{ i }} value:</label>
+    <input type="text" id="parameter{{ i }}_value" name="parameter_values[]"><br><br>
   </div>
+  {% endfor %}
 
-  <div>
-    <label for="parameter3_name">Parameter 3 Name:</label>
-    <input type="text" id="parameter3_name" name="parameter_names[]">
-    <label for="parameter3_value">Parameter 3 Value:</label>
-    <input type="text" id="parameter3_value" name="parameter_values[]"><br><br>
-  </div>
-
-  <div>
-    <label for="parameter4_name">Parameter 4 Name:</label>
-    <input type="text" id="parameter4_name" name="parameter_names[]">
-    <label for="parameter4_value">Parameter 4 Value:</label>
-    <input type="text" id="parameter4_value" name="parameter_values[]"><br><br>
-  </div>
-
-  <div>
-    <label for="parameter5_name">Parameter 5 Name:</label>
-    <input type="text" id="parameter5_name" name="parameter_names[]">
-    <label for="parameter5_value">Parameter 5 Value:</label>
-    <input type="text" id="parameter5_value" name="parameter_values[]"><br><br>
-  </div>
   <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
   <input type="submit" value="Create project" />
 </form>
