@@ -7,20 +7,21 @@
 
 <form action="/projects/search" method="get">
   <p>
-    Keyword:
+    <label for="keyword">Keyword:</label>
     {% if keyword %}
-    <input type="text" name="keyword" value="{{ keyword }}" />
+    <input type="text" name="keyword" id="keyword" value="{{ keyword }}" />
     {% else %}
-    <input type="text" name="keyword" />
+    <input type="text" name="keyword" id="keyword" />
     {% endif %}
   </p>
-  <input type="submit" value="Search" />
+  <button type="submit">Search</button>
 </form>
 
 {% if keyword %}
 <hr />
 <h2>Results</h2>
 
+{% if results %}
 <ul>
   {% for project in results %}
   <li>
@@ -28,5 +29,8 @@
   </li>
   {% endfor %}
 </ul>
+{% else %}
+<p>No results found.</p>
+{% endif %}
 {% endif %}
 {% endblock %}

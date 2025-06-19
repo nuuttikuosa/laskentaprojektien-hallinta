@@ -7,14 +7,14 @@
 
 <form action="/login" method="post">
   <p>
-    Username: <br />
-    <input type="text" name="username" />
+    <label for="username">Username:</label><br />
+    <input type="text" name="username" id="username" required />
   </p>
   <p>
-    Password: <br />
-    <input type="password" name="password" />
+    <label for="password">Password:</label><br />
+    <input type="password" name="password" id="password" required />
   </p>
-  <input type="submit" value="Login" />
+  <button type="submit">Login</button>
 </form>
 
 {% endblock %}

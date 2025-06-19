@@ -349,13 +349,12 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
 
-        session["csrf_token"] = secrets.token_hex(16)
-
         user_id = users.check_login(username, password)
         if not user_id:
             flash("ERROR: Wrong username or password", "error")
             return render_template("login.html")
 
+        session["csrf_token"] = secrets.token_hex(16)
         session["user_id"] = user_id
         session["username"] = username
         return redirect("/")
@@ -367,10 +366,12 @@ def logout():
     require_login()
     session.pop("user_id", None)
     session.pop("username", None)
+    session.pop("csrf_token", None)
+    flash("You have been logged out.", "info")
     return redirect("/")
 
 @app.route("/solutions", methods=["GET"])
-def solutions():
+def show_solutions():
     solutions = projects.get_solutions()
     return render_template("solutions.html", solutions=solutions)
 
