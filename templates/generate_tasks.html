@@ -7,28 +7,22 @@
 <p>
   You can generate tasks for the project "{{ project.name }}".
   The tasks will be numbered consecutively, from the smallest task number to the largest.
-
-
+</p>
+<p><span class="required-marker">*</span> Required fields</p>
 <form action="/edit/{{ project.id }}/generate_tasks" method="post">
   <p>
-    Smallest task number: <br />
-    <input type="text" name="min" />
+    <label for="task_min"><span class="required-marker">*</span>Smallest task number:</label><br />
+    <input type="text" name="task_min" id="task_min" pattern="^[1-9]\d*$" required />
   </p>
   <p>
-    Largest task number: <br />
-    <input type="number" name="max" />
+    <label for="task_max"><span class="required-marker">*</span>Largest task number:</label><br />
+    <input type="text" name="task_max" id="task_max" pattern="^[1-9]\d*$" required />
   </p>
   <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
-  <input type="submit" value="Generate tasks" />
-
-  <p>
-    <a href="/edit/{{ project.id }}">Back to the project edit page</a>
-  </p>
+  <button type="submit">Generate tasks</button>
 
 </form>
-
-<hr />
 <p>
-  <a href="/">Main page</a>
+  <a href="/edit/{{ project.id }}">Back to the project edit page</a>
 </p>
 {% endblock %}

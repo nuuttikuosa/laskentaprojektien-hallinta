@@ -77,13 +77,14 @@ def generate_tasks(task_min, task_max, project_id):
         db.execute(sql, [i, project_id, constants.TASK_STATUS_FREE])
 
 def get_tasks(project_id):
-    sql = """SELECT t.id, t.content, t.updated_at, t.user_id, u.username as username, s.name as status
-             FROM tasks t, task_statuses s, users u
-             WHERE t.user_id = u.id AND
-                   t.status = s.id AND
-                   t.project_id = ?
+    sql = """SELECT t.id, t.content, t.updated_at, t.user_id,
+                    u.username as username, s.name as status
+             FROM tasks t
+             JOIN task_statuses s ON t.status = s.id
+             LEFT JOIN users u ON t.user_id = u.id
+             WHERE t.project_id = ?
              AND s.name <> 'Deleted'
-             ORDER BY t.id ASC"""
+             ORDER BY t.id ASC;"""
     return db.query(sql, [project_id])
 
 def get_number_of_tasks(project_id, status):

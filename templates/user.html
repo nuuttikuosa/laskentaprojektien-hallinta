@@ -1,43 +1,41 @@
 {% extends "layout.html" %}
 
-{% block title %}Participant {{ user.username }} {% endblock %}
+{% block title %}Participant {{ user.username }}{% endblock %}
 
 {% block content %}
 <h1>Participant {{ user.username }}</h1>
 
 {% if user.has_image %}
 <p>
-    <img src="/image/{{ user.id }}">
+    <img src="/image/{{ user.id }}" alt="Profile picture of {{ user.username }}">
 </p>
+{% else %}
+<p><em>No profile image available.</em></p>
 {% endif %}
 
 {{user.bio | show_lines}}
 
 {% if user.id == session.user_id %}
 <p>
-    <a href="/add_image">Add profile picture</a>
+    <a href="/add_image">Add or change profile picture</a>
 </p>
 {% endif %}
 
-<p>
-    The participant has {{ tasks | count }} tasks
-</p>
-
 {% if tasks %}
+<p>The participant has {{ tasks|length }} tasks</p>
 <p>
     The latest update is {{ tasks[0].updated_at }}
 </p>
-{% endif %}
-
 <h2>Tasks</h2>
 
 <ul>
     {% for task in tasks %}
     <li>
         {{task.project_name}} {{task.content}} {{task.updated_at}} {{task.status}}
-
-
     </li>
     {% endfor %}
 </ul>
+{% else %}
+<p>This participant has no tasks.</p>
+{% endif %}
 {% endblock %}

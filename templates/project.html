@@ -38,7 +38,13 @@
 <ul>
   {% for task in tasks %}
   <li>
-    {{ task.content }} — Status: {{ task.status }} - Owner: <a href="/user/{{task.user_id}}">{{ task.username }}</a>
+    {{ task.content }} — Status: {{ task.status }} -
+    Owner:
+    {% if task.user_id %}
+    <a href="/user/{{ task.user_id }}">{{ task.username }}</a>
+    {% else %}
+    <em>Unassigned</em>
+    {% endif %}
   </li>
   {% endfor %}
 </ul>
@@ -50,15 +56,15 @@
   <a href="/project/{{ project.id}}/reserve_tasks">Reserve tasks</a>
 
   {% if project.user_id == session.user_id %}
-    <a href="/edit/{{ project.id }}">Edit project</a>
-    {% if project.status != 'Deleted' %}
-      {% if project.status == 'On Hold' %}
-      <a href="/reactivate/{{ project.id }}">Reactivate project</a>
-      {% else %}
-      <a href="/hold/{{ project.id }}">Put project on hold</a>
-      {% endif %}
-      <a href="/remove/{{ project.id }}">Remove project</a>
-    {% endif %}
+  <a href="/edit/{{ project.id }}">Edit project</a>
+  {% if project.status != 'Deleted' %}
+  {% if project.status == 'On Hold' %}
+  <a href="/reactivate/{{ project.id }}">Reactivate project</a>
+  {% else %}
+  <a href="/hold/{{ project.id }}">Put project on hold</a>
+  {% endif %}
+  <a href="/remove/{{ project.id }}">Remove project</a>
+  {% endif %}
   {% endif %}
 </nav>
 {% endblock %}

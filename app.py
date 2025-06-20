@@ -187,6 +187,8 @@ def generate_tasks(project_id):
     require_login()
 
     project = projects.get_project(project_id)
+    if not project:
+        abort(404)
     if session["user_id"] != project["user_id"]:
         abort(403)
 
@@ -195,22 +197,27 @@ def generate_tasks(project_id):
 
     if request.method == "POST":
         check_csrf()
-        min = int(request.form["min"])
-        max = int(request.form["max"])
-        if min < project["range_min"] or max > project["range_max"]:
+        task_min = request.form["task_min"]
+        task_max = request.form["task_max"]
+
+        if not task_min.isdigit() or not task_max.isdigit():
+            flash("ERROR: Both task numbers must be positive integers", "error")
+            return render_template("generate_tasks.html", project=project)
+
+        task_min = int(task_min)
+        task_max = int(task_max)
+
+        if task_min < project["range_min"] or task_max > project["range_max"]:
             flash("ERROR: Task numbers must be within the project range", "error")
             return render_template("generate_tasks.html", project=project)
-        if max - min < 1:
+        if task_max - task_min < 1:
             flash("ERROR: Smallest task number cannot be larger than largest task number", "error")
             return render_template("generate_tasks.html", project=project)
         if project["status"] != "Not Started":
             flash("ERROR: Project must not be started to generate tasks", "error")
-            return render_template("generate_tasks.html", project=project)
-        if min < 0 or max < 0:
-            flash("ERROR: Task numbers must be non-negative", "error")
-            return render_template("generate_tasks.html", project=project)
+            return redirect("/project/" + str(project_id))
 
-        projects.generate_tasks(min, max, project_id)
+        projects.generate_tasks(task_min, task_max, project_id)
         projects.update_project_status(project_id, constants.PROJECT_STATUS_ONGOING)
 
         return redirect("/project/" + str(project_id))
@@ -399,8 +406,6 @@ def login():
         session["user_id"] = user_id
         session["username"] = username
         return redirect("/")
-
-
 
 @app.route("/logout", methods=["GET"])
 def logout():
