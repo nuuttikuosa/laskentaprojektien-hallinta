@@ -226,17 +226,39 @@ def generate_tasks(project_id):
 def reserve_tasks(project_id):
     require_login()
     project = projects.get_project(project_id)
+    if not project:
+        abort(404)
 
+    if project["status"] != "Ongoing":
+            flash("Cannot reserve tasks: project is not ongoing.", "error")
+            return redirect(f"/project/{project_id}")
+
+    number_of_free_tasks = projects.get_number_of_tasks(project_id, constants.TASK_STATUS_FREE)
 
     if request.method == "GET":
-        number_of_free_tasks = projects.get_number_of_tasks(project_id, constants.TASK_STATUS_FREE)
+
         return render_template("reserve_tasks.html", project = project,
                                number_of_free_tasks=number_of_free_tasks)
-
     if request.method == "POST":
         check_csrf()
+
+        requested_number_of_tasks=request.form["requested_number_of_tasks"]
+        if not requested_number_of_tasks or not requested_number_of_tasks.isdigit():
+            flash("ERROR: Invalid number of tasks requested", "error")
+            return redirect(f"/project/{project_id}/reserve_tasks")
+
+        requested_number_of_tasks = int(requested_number_of_tasks)
+
+        if requested_number_of_tasks < 1:
+            flash("ERROR: Number of tasks requested must be at least 1", "error")
+            return redirect(f"/project/{project_id}/reserve_tasks")
+
+        if requested_number_of_tasks > number_of_free_tasks:
+            flash(f"ERROR: Cannot reserve {requested_number_of_tasks} tasks, only {number_of_free_tasks} available", "error")
+            return redirect(f"/project/{project_id}/reserve_tasks")
+
+
         user_id = session["user_id"]
-        requested_number_of_tasks=int(request.form["requested_number_of_tasks"])
         projects.reserve_tasks(project_id, user_id, requested_number_of_tasks)
 
         return redirect(f"/project/{project_id}")
@@ -434,17 +456,29 @@ def add_image():
     require_login()
 
     if request.method == "GET":
-        return render_template("add_image.html")
+        return render_template("add_image.html",
+                               max_profile_picture_size=config.MAX_PROFILE_PICTURE_SIZE)
 
     if request.method == "POST":
         check_csrf()
         file = request.files["image"]
-        if not file.filename.endswith(".png"):
-            return "VIRHE: väärä tiedostomuoto"
+
+        if not file or file.filename == "":
+            flash("Error: No file uploaded", "error")
+            return render_template("add_image.html",
+                                   max_profile_picture_size=config.MAX_PROFILE_PICTURE_SIZE)
+
+        if not file.filename.lower().endswith(".png") or file.mimetype != "image/png":
+            flash("Error: Only PNG files are allowed", "error")
+            return render_template("add_image.html",
+                                   max_profile_picture_size=config.MAX_PROFILE_PICTURE_SIZE)
+
 
         image = file.read()
-        if len(image) > 100 * 1024:
-            return "VIRHE: liian suuri kuva"
+        if len(image) > config.MAX_PROFILE_PICTURE_SIZE:
+            flash("Error: Image size exceeds the limit", "error")
+            return render_template("add_image.html",
+                                    max_profile_picture_size=config.MAX_PROFILE_PICTURE_SIZE)
 
         user_id = session["user_id"]
         users.update_image(user_id, image)

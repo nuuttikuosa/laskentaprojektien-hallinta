@@ -53,8 +53,9 @@
 {% endif %}
 <hr />
 <nav>
+  {% if project.status == 'Ongoing' %}
   <a href="/project/{{ project.id}}/reserve_tasks">Reserve tasks</a>
-
+  {% endif %}
   {% if project.user_id == session.user_id %}
   <a href="/edit/{{ project.id }}">Edit project</a>
   {% if project.status != 'Deleted' %}

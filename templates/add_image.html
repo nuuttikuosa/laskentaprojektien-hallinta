@@ -1,19 +1,21 @@
 {% extends "layout.html" %}
 
-{% block title %}Add profile picture{% endblock %}
+{% block title %}Add or update profile picture{% endblock %}
 
 {% block content %}
-<h2>Add profile picture</h2>
+<h2>Add or update profile picture</h2>
 
 <p>
-  Please send a png image under 100 kB.
+  Please upload a PNG image smaller than 1 MB.
 </p>
 
 <form action="/add_image" method="post" enctype="multipart/form-data">
   <p>
-    Kuva: <input type="file" name="image" accept=".png" />
+    <input type="hidden" name="MAX_FILE_SIZE" value="{{max_profile_picture_size}}" />
+    <label for="image" class="custom-file-label">Choose file</label>
+    <input type="file" id="image" name="image" accept=".png" required/>
   </p>
   <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
-  <input type="submit" value="Send" />
+  <button type="submit">Send</button>
 </form>
 {% endblock %}

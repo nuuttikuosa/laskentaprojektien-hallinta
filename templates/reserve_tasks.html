@@ -9,22 +9,21 @@
   You will get requested number of tasks, starting from the smallest available task number.
 </p>
 <p>
-  <b>There are {{ number_of_free_tasks }} tasks available for this project.</b>
+  <strong>There are {{ number_of_free_tasks }} tasks available for this project.</strong>
   You can reserve tasks only if the project is in "Ongoing" status.
 </p>
 
-<form action="/project/{{ project.id}}/reserve_tasks" method="post">
+<form action="/project/{{ project.id }}/reserve_tasks" method="post">
   <p>
-    Number of tasks: <br />
-    <input type="text" name="requested_number_of_tasks" />
+    <label for="requested_number_of_tasks">Number of tasks:</label> <br />
+    <input id="requested_number_of_tasks" type="text" name="requested_number_of_tasks" pattern="^[1-9]\d*$" required />
   </p>
 
   <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
-  <input type="submit" value="Request tasks" />
-
-  <p>
-    <a href="/project/{{ project.id }}">Back to the project page</a>
-  </p>
-
+  <button type="submit">Request tasks</button>
 </form>
+<p>
+  <a href="/project/{{ project.id }}">Back to the project page</a>
+</p>
+
 {% endblock %}

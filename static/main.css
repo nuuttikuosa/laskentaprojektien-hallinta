@@ -65,3 +65,20 @@ nav a {
 nav a:hover {
   text-decoration: underline;
 }
+
+#image {
+    display: none;
+  }
+
+  .custom-file-label {
+    display: inline-block;
+    padding: 0.5em 1em;
+    background-color:#007acc;
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+
+  .custom-file-label:hover {
+    background-color: #005f99;
+  }
