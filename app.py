@@ -269,7 +269,8 @@ def return_tasks():
     project_list = projects.get_projects()
 
     if request.method == "GET":
-        return render_template("return_tasks.html", projects=project_list)
+        return render_template("return_tasks.html", projects=project_list,
+                               max_log_file_size=config.MAX_LOG_FILE_SIZE)
 
 
     if request.method == "POST":
@@ -277,20 +278,38 @@ def return_tasks():
         project_id = request.form.get("project_id")
         if not project_id:
             flash("ERROR: No project selected", "error")
-            return render_template("return_tasks.html", projects=project_list)
+            return render_template("return_tasks.html", projects=project_list,
+                       max_log_file_size=config.MAX_LOG_FILE_SIZE)
 
         log_file = request.files["log_file"]
 
         if not log_file or log_file.filename == "":
             flash("ERROR: No file selected", "error")
-            return render_template("return_tasks.html", projects=project_list)
+            return render_template("return_tasks.html", projects=project_list,
+                       max_log_file_size=config.MAX_LOG_FILE_SIZE)
 
-        content = log_file.read().decode("utf-8")
+        raw = log_file.read()
+        if len(raw) > config.MAX_LOG_FILE_SIZE:
+            flash("ERROR: Log file size exceeds the limit", "error")
+            return render_template("return_tasks.html", projects=project_list,
+                           max_log_file_size=config.MAX_LOG_FILE_SIZE)
+        try:
+            content = raw.decode("utf-8")
+        except UnicodeDecodeError:
+            flash("ERROR: File must be UTF-8 encoded text", "error")
+            return render_template("return_tasks.html", projects=project_list,
+                           max_log_file_size=config.MAX_LOG_FILE_SIZE)
+
+        project = projects.get_project(int(project_id))
+        if not project:
+            flash("ERROR: Invalid project selected", "error")
+            return render_template("return_tasks.html", projects=project_list,
+                           max_log_file_size=config.MAX_LOG_FILE_SIZE)
 
         user_id = session["user_id"]
         users.save_log_file(user_id, content)
 
-        rows = content.splitlines()
+        rows = [line for line in content.splitlines() if line.strip()]
         results = []
 
         for row in rows:
@@ -301,7 +320,13 @@ def return_tasks():
             }
             results.append(result)
 
-    return render_template("return_tasks.html", projects=project_list, results=results)
+        success_count = sum(1 for r in results if "OK" in r["status"])
+        fail_count = len(results) - success_count
+        flash(f"Validation complete: {success_count} passed, {fail_count} failed.", "info")
+
+        return render_template("return_tasks.html", projects=project_list,
+                            max_log_file_size=config.MAX_LOG_FILE_SIZE,
+                            results=results)
 
 
 @app.route("/new_project", methods=["GET", "POST"])
