@@ -34,8 +34,11 @@ def add_project(name, range_min, range_max, description, user_id, classes):
     sql = """INSERT INTO projects
              (name, range_min, range_max, description, user_id, status_id)
              VALUES (?, ?, ?, ?, ?, ?)"""
-    db.execute(sql, [name, range_min, range_max, description, user_id,
+    try:
+        db.execute(sql, [name, range_min, range_max, description, user_id,
                      constants.PROJECT_STATUS_NOT_STARTED])
+    except db.IntegrityError:
+        return None
     project_id = db.last_insert_id()
 
     sql = "INSERT INTO project_classes (project_id, title, value) VALUES (?, ?, ?)"
@@ -71,7 +74,7 @@ def add_parameter(name, value, project_id):
 
 def generate_tasks(task_min, task_max, project_id):
     sql = """INSERT INTO tasks
-          (content, updated_at, project_id, status)
+          (content, updated_at, project_id, status_id)
           VALUES (?, datetime('now'),?, ?)"""
     for i in range(task_min, task_max + 1):
         db.execute(sql, [i, project_id, constants.TASK_STATUS_FREE])
@@ -80,7 +83,7 @@ def get_tasks(project_id):
     sql = """SELECT t.id, t.content, t.updated_at, t.user_id,
                     u.username as username, s.name as status
              FROM tasks t
-             JOIN task_statuses s ON t.status = s.id
+             JOIN task_statuses s ON t.status_id = s.id
              LEFT JOIN users u ON t.user_id = u.id
              WHERE t.project_id = ?
              AND s.name <> 'Deleted'
@@ -91,22 +94,22 @@ def get_number_of_tasks(project_id, status):
     sql = """SELECT COUNT(*)
              FROM tasks t
              WHERE t.project_id = ?
-             AND t.status = ?"""
+             AND t.status_id = ?"""
 
     result = db.query(sql, [project_id, status])
     return result[0][0] if result else 0
 
 def reserve_tasks(project_id, user_id, number_of_tasks):
-    sql = """SELECT id FROM tasks
-             WHERE project_id = ? AND status = ?
-             ORDER BY content ASC
+    sql = """SELECT t.id FROM tasks t
+             WHERE project_id = ? AND status_id = ?
+             ORDER BY CAST(content AS INTEGER) ASC
              LIMIT ?"""
     free_tasks = db.query(sql, [project_id, constants.TASK_STATUS_FREE, number_of_tasks])
 
     if not free_tasks:
         return 0
 
-    sql = "UPDATE tasks SET user_id = ?, status = ?, updated_at = datetime('now') WHERE id = ?"
+    sql = "UPDATE tasks SET user_id = ?, status_id = ?, updated_at = datetime('now') WHERE id = ?"
     for task in free_tasks:
         task_id = task["id"]
         db.execute(sql, [user_id, constants.TASK_STATUS_ASSIGNED, task_id])
@@ -119,7 +122,7 @@ def get_user_tasks(user_id):
     sql = """SELECT t.id, t.content, t.updated_at, p.name as project_name, s.name as status
              FROM tasks t, projects p, task_statuses s
              WHERE t.project_id = p.id AND
-             t.status = s.id AND
+             t.status_id = s.id AND
              t.user_id = ?
              AND s.name <> 'Deleted'
              ORDER BY t.id ASC"""
@@ -143,7 +146,7 @@ def get_classes(project_id):
 
 def mark_task_done(content, user_id, project_id):
     sql = """UPDATE tasks
-             SET status = ?, updated_at = datetime('now'), user_id = ?
+             SET status_id = ?, updated_at = datetime('now'), user_id = ?
              WHERE content = ? AND project_id = ?"""
     db.execute(sql, [constants.TASK_STATUS_DONE, user_id, content, project_id])
 
@@ -160,3 +163,7 @@ def get_solutions():
              ORDER BY s.created_at DESC"""
     return db.query(sql)
 
+def get_project_class_value(project_id, title):
+    sql = "SELECT value FROM project_classes WHERE project_id = ? AND title = ?"
+    result = db.query(sql, [project_id, title])
+    return result[0][0] if result else None

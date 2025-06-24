@@ -43,7 +43,7 @@ def get_tasks(user_id):
                     ts.name AS status
              FROM tasks t, projects p, task_statuses ts
              WHERE t.project_id = p.id AND
-                   t.status = ts.id AND
+                   t.status_id = ts.id AND
                    t.user_id = ?
              ORDER BY t.updated_at DESC"""
     return db.query(sql, [user_id])

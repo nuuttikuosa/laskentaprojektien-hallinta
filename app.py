@@ -306,8 +306,16 @@ def return_tasks():
             return render_template("return_tasks.html", projects=project_list,
                            max_log_file_size=config.MAX_LOG_FILE_SIZE)
 
+
+
         user_id = session["user_id"]
         users.save_log_file(user_id, content)
+
+        project_type = projects.get_project_class_value(project_id, "Type")
+        if project_type != "Powersum":
+            flash("ERROR: Only Powersum projects can be returned", "error")
+            return render_template("return_tasks.html", projects=project_list,
+                           max_log_file_size=config.MAX_LOG_FILE_SIZE)
 
         rows = [line for line in content.splitlines() if line.strip()]
         results = []
@@ -387,7 +395,11 @@ def new_project():
         parameter_names = request.form.getlist("parameter_names[]")
         parameter_values = request.form.getlist("parameter_values[]")
 
-        project_id = projects.add_project(name, range_min, range_max, description, user_id, classes)
+        try:
+            project_id = projects.add_project(name, range_min, range_max, description, user_id, classes)
+        except sqlite3.IntegrityError:
+            flash("ERROR: Project name already exists", "error")
+            return redirect("/new_project")
 
         for name, value in zip(parameter_names, parameter_values):
             if name and value:
