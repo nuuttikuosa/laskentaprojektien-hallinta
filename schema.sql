@@ -70,3 +70,8 @@ CREATE TABLE solutions (
     content TEXT,
     created_at TEXT
 );
+
+CREATE INDEX idx_tasks_project_id ON tasks(project_id);
+CREATE INDEX idx_tasks_user_id ON tasks(user_id);
+CREATE INDEX idx_tasks_status_id ON tasks(status_id);
+CREATE INDEX idx_tasks_user_updated ON tasks(user_id, updated_at DESC);

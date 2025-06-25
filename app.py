@@ -1,8 +1,9 @@
 import sqlite3
 import secrets
 import markupsafe
+import time
 from flask import Flask
-from flask import make_response, flash, redirect, render_template, request, session, abort
+from flask import g, make_response, flash, redirect, render_template, request, session, abort
 import config
 import users
 import projects
@@ -27,6 +28,18 @@ def show_lines(content):
     content = str(markupsafe.escape(content))
     content = content.replace("\n", "<br />")
     return markupsafe.Markup(content)
+
+@app.before_request
+def before_request():
+    if config.DEBUGGING:
+        g.start_time = time.time()
+
+@app.after_request
+def after_request(response):
+    if config.DEBUGGING and hasattr(g, 'start_time'):
+        elapsed_time = round(time.time() - g.start_time, 2)
+        print(f"[PERF] {request.method} {request.path} - {elapsed_time}s")
+    return response
 
 @app.route("/")
 def index():

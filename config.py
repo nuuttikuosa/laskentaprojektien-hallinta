@@ -3,3 +3,4 @@ PROJECT_MAX_PARAMETRS = 5
 MAX_PROFILE_PICTURE_SIZE = 1024 * 1024  # 1 MB
 MAX_LOG_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
 DATABASE_FILE = "database.db"
+DEBUGGING = True  # Set to True to enable debuggung features
