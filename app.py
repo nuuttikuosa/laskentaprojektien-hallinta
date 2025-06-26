@@ -4,6 +4,7 @@ import markupsafe
 import time
 from flask import Flask
 from flask import g, make_response, flash, redirect, render_template, request, session, abort
+
 import config
 import users
 import projects
@@ -294,7 +295,12 @@ def return_tasks():
             return render_template("return_tasks.html", projects=project_list,
                        max_log_file_size=config.MAX_LOG_FILE_SIZE)
 
-        log_file = request.files["log_file"]
+        if not project_id.isdigit():
+            flash("ERROR: Invalid project ID", "error")
+            return render_template("return_tasks.html", projects=project_list,
+                       max_log_file_size=config.MAX_LOG_FILE_SIZE)
+
+        log_file = request.files.get("log_file")
 
         if not log_file or log_file.filename == "":
             flash("ERROR: No file selected", "error")
@@ -319,8 +325,6 @@ def return_tasks():
             return render_template("return_tasks.html", projects=project_list,
                            max_log_file_size=config.MAX_LOG_FILE_SIZE)
 
-
-
         user_id = session["user_id"]
         users.save_log_file(user_id, content)
 
@@ -330,20 +334,11 @@ def return_tasks():
             return render_template("return_tasks.html", projects=project_list,
                            max_log_file_size=config.MAX_LOG_FILE_SIZE)
 
-        rows = [line for line in content.splitlines() if line.strip()]
-        results = []
-
-        for row in rows:
-            is_valid = powersum.process_powersum_log_row(row, project_id)
-            result = {
-                "row": row,
-                "status": "OK : " if is_valid else "Validation failed : "
-            }
-            results.append(result)
-
-        success_count = sum(1 for r in results if "OK" in r["status"])
-        fail_count = len(results) - success_count
-        flash(f"Validation complete: {success_count} passed, {fail_count} failed.", "info")
+        results = powersum.process_log_file(content, project_id)
+        if not results:
+            flash("ERROR: Log file processing failed. Check the file format and content.", "error")
+            return render_template("return_tasks.html", projects=project_list,
+                            max_log_file_size=config.MAX_LOG_FILE_SIZE)
 
         return render_template("return_tasks.html", projects=project_list,
                             max_log_file_size=config.MAX_LOG_FILE_SIZE,

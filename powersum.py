@@ -1,5 +1,22 @@
-from flask import session
+from flask import session, flash
 import projects
+
+def process_log_file(log_file, project_id):
+
+    rows = [line for line in log_file.splitlines() if line.strip()]
+    results = []
+
+    for row in rows:
+        is_valid = process_powersum_log_row(row, project_id)
+        result = {
+            "row": row,
+            "status": "OK : " if is_valid else "Validation failed : "
+        }
+        results.append(result)
+
+    success_count = sum(1 for r in results if "OK" in r["status"])
+    fail_count = len(results) - success_count
+    flash(f"Validation complete: {success_count} passed, {fail_count} failed.", "info")
 
 def process_powersum_log_row(log_row, project_id):
 
