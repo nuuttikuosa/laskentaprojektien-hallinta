@@ -1,6 +1,7 @@
 from flask import session, flash
 import projects
 
+
 def process_log_file(log_file, project_id):
 
     rows = [line for line in log_file.splitlines() if line.strip()]
@@ -19,9 +20,11 @@ def process_log_file(log_file, project_id):
 
     success_count = sum(1 for r in results if "OK" in r["status"])
     fail_count = len(results) - success_count
-    flash(f"Validation complete: {success_count} passed, {fail_count} failed.", "info")
+    flash(
+        f"Validation complete: {success_count} passed, {fail_count} failed.", "info")
 
     return results
+
 
 def process_powersum_log_row(log_row, project_id):
 
@@ -53,13 +56,12 @@ def difference_between_sides(row: str):
     try:
 
         row = row.strip()
-        main_part =  row.rsplit("Residue:", 1)[0].strip()
+        main_part = row.rsplit("Residue:", 1)[0].strip()
         metadata_part, equation_part = main_part.strip().split(" ", 1)
 
         exponent = int(metadata_part.strip("()").split(",")[0])
 
         left_str, right_str = equation_part.split("=")
-
 
         left_nums = [int(x) for x in left_str.split("+")]
         right_nums = [int(x) for x in right_str.split("+")]

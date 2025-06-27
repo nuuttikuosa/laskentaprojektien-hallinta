@@ -15,9 +15,11 @@ import powersum
 app = Flask(__name__)
 app.secret_key = config.secret_key
 
+
 def require_login():
     if "user_id" not in session:
         abort(403)
+
 
 def check_csrf():
     if "csrf_token" not in request.form:
@@ -25,16 +27,19 @@ def check_csrf():
     if request.form["csrf_token"] != session["csrf_token"]:
         abort(403)
 
+
 @app.template_filter()
 def show_lines(content):
     content = str(markupsafe.escape(content))
     content = content.replace("\n", "<br />")
     return markupsafe.Markup(content)
 
+
 @app.before_request
 def before_request():
     if config.DEBUGGING:
         g.start_time = time.time()
+
 
 @app.after_request
 def after_request(response):
@@ -43,10 +48,12 @@ def after_request(response):
         print(f"[PERF] {request.method} {request.path} - {elapsed_time}s")
     return response
 
+
 @app.route("/", methods=["GET"])
 def index():
     project_list = projects.get_projects()
     return render_template("index.html", projects=project_list)
+
 
 @app.route("/project/<int:project_id>", methods=["GET"])
 def show_project(project_id):
@@ -56,10 +63,11 @@ def show_project(project_id):
 
     tasks = projects.get_tasks(project_id)
     classes = projects.get_classes(project_id)
-    project_parameters= projects.get_project_parameters(project_id)
+    project_parameters = projects.get_project_parameters(project_id)
 
-    return render_template("project.html", project=project, project_parameters = project_parameters,
+    return render_template("project.html", project=project, project_parameters=project_parameters,
                            tasks=tasks, classes=classes)
+
 
 @app.route("/remove/<int:project_id>", methods=["GET", "POST"])
 def remove_project(project_id):
@@ -76,9 +84,11 @@ def remove_project(project_id):
     if request.method == "POST":
         check_csrf()
         if "continue" in request.form:
-            projects.update_project_status(project["id"], constants.PROJECT_STATUS_DELETED)
+            projects.update_project_status(
+                project["id"], constants.PROJECT_STATUS_DELETED)
             flash("Project has been removed.", "info")
         return redirect("/project/" + str(project["id"]))
+
 
 @app.route("/hold/<int:project_id>", methods=["GET", "POST"])
 def set_project_on_hold(project_id):
@@ -96,9 +106,11 @@ def set_project_on_hold(project_id):
     if request.method == "POST":
         check_csrf()
         if "continue" in request.form:
-            projects.update_project_status(project["id"], constants.PROJECT_STATUS_ON_HOLD)
+            projects.update_project_status(
+                project["id"], constants.PROJECT_STATUS_ON_HOLD)
             flash("Project has been put on hold.", "info")
         return redirect("/project/" + str(project["id"]))
+
 
 @app.route("/reactivate/<int:project_id>", methods=["GET", "POST"])
 def reactivate_project(project_id):
@@ -115,9 +127,11 @@ def reactivate_project(project_id):
     if request.method == "POST":
         check_csrf()
         if "continue" in request.form:
-            projects.update_project_status(project["id"], constants.PROJECT_STATUS_ONGOING)
+            projects.update_project_status(
+                project["id"], constants.PROJECT_STATUS_ONGOING)
             flash("Project has been reactivated.", "info")
         return redirect("/project/" + str(project["id"]))
+
 
 @app.route("/projects/search", methods=["GET"])
 def search_projects():
@@ -193,9 +207,11 @@ def edit(project_id):
                     abort(403)
                 classes.append((class_title, class_value))
 
-        projects.update_project(name, range_min, range_max, description, project_id, classes)
+        projects.update_project(
+            name, range_min, range_max, description, project_id, classes)
 
         return redirect("/project/" + str(project_id))
+
 
 @app.route("/edit/<int:project_id>/generate_tasks", methods=["GET", "POST"])
 def generate_tasks(project_id):
@@ -226,18 +242,21 @@ def generate_tasks(project_id):
             flash("ERROR: Task numbers must be within the project range", "error")
             return render_template("generate_tasks.html", project=project)
         if task_max - task_min < 1:
-            flash("ERROR: Smallest task number cannot be larger than largest task number", "error")
+            flash(
+                "ERROR: Smallest task number cannot be larger than largest task number", "error")
             return render_template("generate_tasks.html", project=project)
         if project["status"] != "Not Started":
             flash("ERROR: Project must not be started to generate tasks", "error")
             return redirect("/project/" + str(project_id))
 
         projects.generate_tasks(task_min, task_max, project_id)
-        projects.update_project_status(project_id, constants.PROJECT_STATUS_ONGOING)
+        projects.update_project_status(
+            project_id, constants.PROJECT_STATUS_ONGOING)
 
         return redirect("/project/" + str(project_id))
 
-@app.route("/project/<int:project_id>/reserve_tasks", methods=["GET","POST"])
+
+@app.route("/project/<int:project_id>/reserve_tasks", methods=["GET", "POST"])
 def reserve_tasks(project_id):
     require_login()
     project = projects.get_project(project_id)
@@ -248,16 +267,17 @@ def reserve_tasks(project_id):
         flash("Cannot reserve tasks: project is not ongoing.", "error")
         return redirect(f"/project/{project_id}")
 
-    number_of_free_tasks = projects.get_number_of_tasks(project_id, constants.TASK_STATUS_FREE)
+    number_of_free_tasks = projects.get_number_of_tasks(
+        project_id, constants.TASK_STATUS_FREE)
 
     if request.method == "GET":
 
-        return render_template("reserve_tasks.html", project = project,
+        return render_template("reserve_tasks.html", project=project,
                                number_of_free_tasks=number_of_free_tasks)
     if request.method == "POST":
         check_csrf()
 
-        requested_number_of_tasks=request.form["requested_number_of_tasks"]
+        requested_number_of_tasks = request.form["requested_number_of_tasks"]
         if not requested_number_of_tasks or not requested_number_of_tasks.isdigit():
             flash("ERROR: Invalid number of tasks requested", "error")
             return redirect(f"/project/{project_id}/reserve_tasks")
@@ -273,11 +293,11 @@ def reserve_tasks(project_id):
             flash(msg, category="error")
             return redirect(f"/project/{project_id}/reserve_tasks")
 
-
         user_id = session["user_id"]
         projects.reserve_tasks(project_id, user_id, requested_number_of_tasks)
 
         return redirect(f"/project/{project_id}")
+
 
 @app.route("/return", methods=["GET", "POST"])
 def return_tasks():
@@ -288,44 +308,43 @@ def return_tasks():
         return render_template("return_tasks.html", projects=project_list,
                                max_log_file_size=config.MAX_LOG_FILE_SIZE)
 
-
     if request.method == "POST":
         check_csrf()
         project_id = request.form.get("project_id")
         if not project_id:
             flash("ERROR: No project selected", "error")
             return render_template("return_tasks.html", projects=project_list,
-                       max_log_file_size=config.MAX_LOG_FILE_SIZE)
+                                   max_log_file_size=config.MAX_LOG_FILE_SIZE)
 
         if not project_id.isdigit():
             flash("ERROR: Invalid project ID", "error")
             return render_template("return_tasks.html", projects=project_list,
-                       max_log_file_size=config.MAX_LOG_FILE_SIZE)
+                                   max_log_file_size=config.MAX_LOG_FILE_SIZE)
 
         log_file = request.files.get("log_file")
 
         if not log_file or log_file.filename == "":
             flash("ERROR: No file selected", "error")
             return render_template("return_tasks.html", projects=project_list,
-                       max_log_file_size=config.MAX_LOG_FILE_SIZE)
+                                   max_log_file_size=config.MAX_LOG_FILE_SIZE)
 
         raw = log_file.read()
         if len(raw) > config.MAX_LOG_FILE_SIZE:
             flash("ERROR: Log file size exceeds the limit", "error")
             return render_template("return_tasks.html", projects=project_list,
-                           max_log_file_size=config.MAX_LOG_FILE_SIZE)
+                                   max_log_file_size=config.MAX_LOG_FILE_SIZE)
         try:
             content = raw.decode("utf-8")
         except UnicodeDecodeError:
             flash("ERROR: File must be UTF-8 encoded text", "error")
             return render_template("return_tasks.html", projects=project_list,
-                           max_log_file_size=config.MAX_LOG_FILE_SIZE)
+                                   max_log_file_size=config.MAX_LOG_FILE_SIZE)
 
         project = projects.get_project(int(project_id))
         if not project:
             flash("ERROR: Invalid project selected", "error")
             return render_template("return_tasks.html", projects=project_list,
-                           max_log_file_size=config.MAX_LOG_FILE_SIZE)
+                                   max_log_file_size=config.MAX_LOG_FILE_SIZE)
 
         user_id = session["user_id"]
         users.save_log_file(user_id, content)
@@ -334,17 +353,18 @@ def return_tasks():
         if project_type != "Powersum":
             flash("ERROR: Only Powersum projects can be returned", "error")
             return render_template("return_tasks.html", projects=project_list,
-                           max_log_file_size=config.MAX_LOG_FILE_SIZE)
+                                   max_log_file_size=config.MAX_LOG_FILE_SIZE)
 
         results = powersum.process_log_file(content, project_id)
         if not results:
-            flash("ERROR: Log file processing failed. Check the file format and content.", "error")
+            flash(
+                "ERROR: Log file processing failed. Check the file format and content.", "error")
             return render_template("return_tasks.html", projects=project_list,
-                            max_log_file_size=config.MAX_LOG_FILE_SIZE)
+                                   max_log_file_size=config.MAX_LOG_FILE_SIZE)
 
         return render_template("return_tasks.html", projects=project_list,
-                            max_log_file_size=config.MAX_LOG_FILE_SIZE,
-                            results=results)
+                               max_log_file_size=config.MAX_LOG_FILE_SIZE,
+                               results=results)
 
 
 @app.route("/new_project", methods=["GET", "POST"])
@@ -416,8 +436,8 @@ def new_project():
             if name and value:
                 projects.add_parameter(name, value, project_id)
 
-
         return redirect("/project/" + str(project_id))
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -458,6 +478,7 @@ def register():
             flash("ERROR: Username already exists", "error")
             return redirect("/register")
 
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
@@ -477,6 +498,7 @@ def login():
         session["username"] = username
         return redirect("/")
 
+
 @app.route("/logout", methods=["GET"])
 def logout():
     require_login()
@@ -486,10 +508,12 @@ def logout():
     flash("You have been logged out.", "info")
     return redirect("/")
 
+
 @app.route("/solutions", methods=["GET"])
 def show_solutions():
     solutions = projects.get_solutions()
     return render_template("solutions.html", solutions=solutions)
+
 
 @app.route("/user/<int:user_id>", methods=["GET"])
 def show_user(user_id):
@@ -498,6 +522,7 @@ def show_user(user_id):
         abort(404)
     tasks = users.get_tasks(user_id)
     return render_template("user.html", user=user, tasks=tasks)
+
 
 @app.route("/add_image", methods=["GET", "POST"])
 def add_image():
@@ -521,16 +546,16 @@ def add_image():
             return render_template("add_image.html",
                                    max_profile_picture_size=config.MAX_PROFILE_PICTURE_SIZE)
 
-
         image = file.read()
         if len(image) > config.MAX_PROFILE_PICTURE_SIZE:
             flash("Error: Image size exceeds the limit", "error")
             return render_template("add_image.html",
-                                    max_profile_picture_size=config.MAX_PROFILE_PICTURE_SIZE)
+                                   max_profile_picture_size=config.MAX_PROFILE_PICTURE_SIZE)
 
         user_id = session["user_id"]
         users.update_image(user_id, image)
         return redirect("/user/" + str(user_id))
+
 
 @app.route("/image/<int:user_id>", methods=["GET"])
 def show_image(user_id):
