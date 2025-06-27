@@ -4,6 +4,9 @@ import projects
 def process_log_file(log_file, project_id):
 
     rows = [line for line in log_file.splitlines() if line.strip()]
+    if len(rows) == 0:
+        flash("Log file is empty.", "error")
+        return None
     results = []
 
     for row in rows:
@@ -18,6 +21,8 @@ def process_log_file(log_file, project_id):
     fail_count = len(results) - success_count
     flash(f"Validation complete: {success_count} passed, {fail_count} failed.", "info")
 
+    return results
+
 def process_powersum_log_row(log_row, project_id):
 
     project = projects.get_project(project_id)
@@ -28,7 +33,7 @@ def process_powersum_log_row(log_row, project_id):
             content = int(log_row.split()[2])
             projects.mark_task_done(content, user_id, project_id)
             return True
-        except Exception as e:
+        except (ValueError, IndexError) as e:
             print(f"Error processing row '{log_row}': {e}")
             return False
 
@@ -36,7 +41,8 @@ def process_powersum_log_row(log_row, project_id):
     if diff == 0:
         projects.add_solution(log_row, user_id, project_id)
         return True
-    elif diff > 0:
+
+    if diff > 0:
         return False
 
     print(f"Skipping invalid row: {log_row}")
@@ -63,6 +69,6 @@ def difference_between_sides(row: str):
 
         return abs(left_sum - right_sum)
 
-    except Exception as e:
+    except (ValueError, IndexError) as e:
         print(f"Error processing row '{row}': {e}")
         return -1

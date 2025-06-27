@@ -14,22 +14,22 @@ db.execute("DELETE FROM project_parameters")
 db.execute("DELETE FROM projects")
 db.execute("DELETE FROM tasks")
 
-user_count = 1000
-project_count = 1000
-task_count = 10**8
+USER_COUNT = 1000
+PROJECT_COUNT = 1000
+TASK_COUNT = 10**8
 
-for i in range(1, user_count + 1):
+for i in range(1, USER_COUNT + 1):
     db.execute("INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
                ["user" + str(i), "user" + str(i) + "@example.com", "fake_hash"])
 
-for i in range(1, project_count + 1):
-    user_id = random.randint(1, user_count)
+for i in range(1, PROJECT_COUNT + 1):
+    user_id = random.randint(1, USER_COUNT)
     db.execute("INSERT INTO projects (name, user_id, status_id) VALUES (?, ?, ?)",
                ["project" + str(i), user_id, constants.PROJECT_STATUS_ONGOING])
 
-for i in range(1, task_count + 1):
-    user_id = random.randint(1, user_count)
-    project_id = random.randint(1, project_count)
+for i in range(1, TASK_COUNT + 1):
+    user_id = random.randint(1, USER_COUNT)
+    project_id = random.randint(1, PROJECT_COUNT)
     db.execute("""INSERT INTO tasks (content, updated_at, user_id, project_id, status_id)
                   VALUES (?, datetime('now'), ?, ?, ?)""",
                ["task" + str(i), user_id, project_id, constants.TASK_STATUS_FREE])

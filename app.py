@@ -1,7 +1,8 @@
+import time
+
 import sqlite3
 import secrets
 import markupsafe
-import time
 from flask import Flask
 from flask import g, make_response, flash, redirect, render_template, request, session, abort
 
@@ -244,8 +245,8 @@ def reserve_tasks(project_id):
         abort(404)
 
     if project["status"] != "Ongoing":
-            flash("Cannot reserve tasks: project is not ongoing.", "error")
-            return redirect(f"/project/{project_id}")
+        flash("Cannot reserve tasks: project is not ongoing.", "error")
+        return redirect(f"/project/{project_id}")
 
     number_of_free_tasks = projects.get_number_of_tasks(project_id, constants.TASK_STATUS_FREE)
 
@@ -268,7 +269,8 @@ def reserve_tasks(project_id):
             return redirect(f"/project/{project_id}/reserve_tasks")
 
         if requested_number_of_tasks > number_of_free_tasks:
-            flash(f"ERROR: Cannot reserve {requested_number_of_tasks} tasks, only {number_of_free_tasks} available", "error")
+            msg = f"Only {number_of_free_tasks} available (requested {requested_number_of_tasks})"
+            flash(msg, category="error")
             return redirect(f"/project/{project_id}/reserve_tasks")
 
 
@@ -404,7 +406,8 @@ def new_project():
         parameter_values = request.form.getlist("parameter_values[]")
 
         try:
-            project_id = projects.add_project(name, range_min, range_max, description, user_id, classes)
+            project_id = projects.add_project(name, range_min, range_max,
+                                              description, user_id, classes)
         except sqlite3.IntegrityError:
             flash("ERROR: Project name already exists", "error")
             return redirect("/new_project")

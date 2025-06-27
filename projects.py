@@ -1,3 +1,5 @@
+import sqlite3
+
 import db
 import constants
 
@@ -37,7 +39,7 @@ def add_project(name, range_min, range_max, description, user_id, classes):
     try:
         db.execute(sql, [name, range_min, range_max, description, user_id,
                      constants.PROJECT_STATUS_NOT_STARTED])
-    except db.IntegrityError:
+    except sqlite3.IntegrityError:
         return None
     project_id = db.last_insert_id()
 
@@ -156,7 +158,8 @@ def add_solution(row, user_id, project_id):
     db.execute(sql, [row, user_id, project_id])
 
 def get_solutions():
-    sql = """SELECT s.id, s.content, s.created_at, s.user_id, s.project_id, u.username as username, p.name as project_name
+    sql = """SELECT s.id, s.content, s.created_at, s.user_id, s.project_id,
+                    u.username as username, p.name as project_name
              FROM solutions s, users u, projects p
              WHERE s.user_id = u.id AND
                    s.project_id = p.id
