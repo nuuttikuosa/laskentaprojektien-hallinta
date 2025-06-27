@@ -14,7 +14,7 @@ CREATE TABLE project_statuses (
 
 CREATE TABLE projects (
     id INTEGER PRIMARY KEY,
-    name TEXT UNIQUE,
+    name TEXT UNIQUE NOT NULL,
     description TEXT,
     range_min INTEGER,
     range_max INTEGER,
@@ -36,7 +36,7 @@ CREATE TABLE task_statuses (
 
 CREATE TABLE tasks (
     id INTEGER PRIMARY KEY,
-    content TEXT,
+    content TEXT NOT NULL,
     updated_at TEXT,
     user_id INTEGER REFERENCES users,
     project_id INTEGER REFERENCES projects,

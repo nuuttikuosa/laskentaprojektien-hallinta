@@ -43,12 +43,12 @@ def after_request(response):
         print(f"[PERF] {request.method} {request.path} - {elapsed_time}s")
     return response
 
-@app.route("/")
+@app.route("/", methods=["GET"])
 def index():
     project_list = projects.get_projects()
     return render_template("index.html", projects=project_list)
 
-@app.route("/project/<int:project_id>")
+@app.route("/project/<int:project_id>", methods=["GET"])
 def show_project(project_id):
     project = projects.get_project(project_id)
     if not project:
