@@ -1,3 +1,18 @@
+PRAGMA foreign_keys = OFF;
+
+DROP TABLE IF EXISTS solutions;
+DROP TABLE IF EXISTS user_logs;
+DROP TABLE IF EXISTS project_classes;
+DROP TABLE IF EXISTS project_parameters;
+DROP TABLE IF EXISTS tasks;
+DROP TABLE IF EXISTS project_statuses;
+DROP TABLE IF EXISTS projects;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS classes;
+
+PRAGMA foreign_keys = ON;
+
+
 CREATE TABLE users (
     id INTEGER PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
