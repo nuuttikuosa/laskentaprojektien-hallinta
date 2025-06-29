@@ -16,7 +16,7 @@ db.execute("DELETE FROM tasks")
 
 USER_COUNT = 1000
 PROJECT_COUNT = 1000
-TASK_COUNT = 10**8
+TASK_COUNT = 10**7
 
 for i in range(1, USER_COUNT + 1):
     db.execute("INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",

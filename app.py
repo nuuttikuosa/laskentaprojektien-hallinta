@@ -1,4 +1,5 @@
 import time
+import math
 
 import sqlite3
 import secrets
@@ -50,9 +51,21 @@ def after_request(response):
 
 
 @app.route("/", methods=["GET"])
-def index():
-    project_list = projects.get_projects()
-    return render_template("index.html", projects=project_list)
+@app.route("/<int:page>", methods=["GET"])
+def index(page=1):
+
+    page_size = 10
+    project_count = projects.project_count()
+    page_count = math.ceil(project_count / page_size)
+    page_count = max(page_count, 1)
+
+    if page < 1:
+        return redirect("/1")
+    if page > page_count:
+        return redirect("/" + str(page_count))
+
+    project_list = projects.get_projects(page, page_size)
+    return render_template("index.html", page=page, page_count=page_count, projects=project_list)
 
 
 @app.route("/project/<int:project_id>", methods=["GET"])

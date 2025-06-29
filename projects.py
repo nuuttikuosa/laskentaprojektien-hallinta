@@ -26,13 +26,18 @@ def get_project(project_id):
     return result[0] if result else None
 
 
-def get_projects():
-    sql = """SELECT p.id, p.name
-             FROM projects p, project_statuses s
-             WHERE p.status_id = s.id AND
-             s.name <> 'Deleted'
-             ORDER BY p.id DESC"""
-    return db.query(sql)
+def get_projects(page, page_size):
+    sql = """SELECT p.id, p.name, COUNT(t.id) task_count, MAX(t.updated_at) last_updated
+             FROM projects p
+             JOIN project_statuses s ON p.status_id = s.id
+             LEFT JOIN tasks t       ON t.project_id = p.id
+             WHERE s.name <> 'Deleted'
+             GROUP BY p.id, p.name
+             ORDER BY p.id DESC
+             LIMIT ? OFFSET ?"""
+    limit = page_size
+    offset = page_size * (page - 1)
+    return db.query(sql, [limit, offset])
 
 
 def add_project(name, range_min, range_max, description, user_id, classes):
@@ -187,3 +192,12 @@ def get_project_class_value(project_id, title):
     sql = "SELECT value FROM project_classes WHERE project_id = ? AND title = ?"
     result = db.query(sql, [project_id, title])
     return result[0][0] if result else None
+
+
+def project_count():
+    sql = """SELECT COUNT(*)
+             FROM projects p, project_statuses s
+             WHERE p.status_id = s.id AND
+                   s.name <> 'Deleted'"""
+    result = db.query(sql)
+    return result[0][0] if result else 0

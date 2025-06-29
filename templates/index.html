@@ -9,7 +9,13 @@
 {% for project in projects %}
 <div class="item">
   <a href="/project/{{ project.id }}">{{ project.name }}</a>
+  {{ project.task_count }} tasks, latest update {{ project.last_updated }}
 </div>
-
 {% endfor %}
+<hr />
+<p>
+  <a href="/{{ page - 1 }}">&lt;&lt;</a>
+  Sivu {{ page }}/{{ page_count }}
+  <a href="/{{ page + 1 }}">&gt;&gt;</a>
+</p>
 {% endblock %}
