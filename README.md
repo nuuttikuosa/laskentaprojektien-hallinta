@@ -49,6 +49,23 @@ $ flask run
 6. Kaikki käyttäjät voivat varata projektista tehtäviä.
 7. Käyttäjä ajaa omalla koneella projektikohtaista brute force tyyppistä client ohjelmaa joka on kirjoitettu C:llä tai assemblerilla. Ajoittain käyttäjä voi uploadata clientin tuottaman lokitiedoston, josta sovellus löytää mahdollisesti löytyneet ratkaisut ja tehdyt tehtävät. Sovellut päivittää tehtyjen tehtävien statukseksi Done.
 
+## Suorituskykytestaus
+
+Tämän hetkinen oletus on, että samanaikaisia projekteja on korkeintaan muutamia kymmeniä, näillä korkeintaan muutamia satoja osallistujia ja projekteissa tehtäviä joitain satoja tuhansia. Varmuuden vuoksi sovellus on suorituskykytestattu seuraavilla lukumäärillä:
+- projektien lukumäärä: 1 000
+- käyttäjien lukumäärä: 1 000
+- tehtävien lukumäärä: 10 000 000
+
+Etusivun lataaminen kesti 60 sekuntia, projektisivun lataaminen kesti 0,4 sekuntia ja käyttäjäsivun lataaminen kesti 0.4 sekuntia. Tämän jälkeen tietokantaan lisättiin käyttöliittymän kautta projekti ja sille 100 000 tehtävää. Projektin tehtävien generointi kesti noin 115 sekuntia. 
+
+Tietokantaan lisättiin indeksejä ja tämän seurauksena käyttö nopeutui hakutoiminnoissa huomattavasti. Etusivu latautui 11 sekunnissa, projektisivun lataaminen kestää samat 0,4 sekuntia ja käyttäjäsivun lataaminen kestää 0,1 sekuntia, mutta projektien ja tehtävien lisääminen hidastui 137 sekuntiin. 
+Nämä ovat hyväksyttäviä arvoja, koska käytännössä tietokannassa on vähemmän tietoa.
+
+Indeksit hidastavat tietokantaan lisäämisoperaatioita, mutta tämä näkyy käytännössä vain projektin hallinnointitehtävässä generoi projektin tehtävät.  Vaikka tehtävä kestää kauan ja hidastui indeksien lisäämisen myötä, niin kyseessä on harvinainen, korkeintaan kerran kuussa tehtävä operaatio, joka voi hyvin kestää joitain minuutteja. Hidastuminen on väistämätön seuraus indeksien käytöstä. Jos tulee tilanne, että tehtävien generointi kestää ylläpitäjältä liian kauan, niin voidaan kokeilla tietokannan indeksien poistamista, datan lisäämistä tietokantaan ja indeksien lisäämistä takaisin tietokantaan. Tämä todennäköisesti nopeuttaa operaatiota, mutta pitää suorittaa tietokannan (sqlite) komentotulkista.
+
+Indeksit lisäämällä on haluttu tehdä sovelluksesta nopea projekteihin osallistujille. On ajateltu, että harvoin suoritettavat ylläpito-operaatiot (kuten tehtävien generointi projektille) voivat kestää pidempään. Tämänhetkisissä käyttöskenaarioissa dataa tulee myös olemaan tietokannassa vähemmän kuin suorituskykytestitapauksessa.  
+
+
  ## Yleistä laskentaprojekteista
 Internetissä on joitain luonteeltaan hyvin rinnakkaistuvia lukuteoreettisia etsintäprojekteja. Tyypillisesti näissä etsitään alkulukuja. Esim. muotoa n!+1 olevia alkulukuja. Projektin tehtävät ovat kokonaislukuja. Jos käyttäjä saa tehtävän 20 000, niin hänen pitää client sovelluksella testata onko luku 20000!+1 alkuluku vai ei. Tämän vuoksi projektit ovat lukuvälejä, esim. 1 000 - 100 000 ja käyttäjät varaavat numeroita (tehtäviä) tältä lukuväliltä. Kun käyttäjät ovat validoineet saamansa tehtävät (numerot), niin he palauttavat lokitiedostoja. Serveri osaa näistä tulkita, mitkä tehtävät on tehty ja onko tuloksia löytynyt.
 
