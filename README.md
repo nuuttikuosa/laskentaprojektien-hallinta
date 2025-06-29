@@ -8,7 +8,7 @@
 - Käyttäjä pystyy varaamaan tehtäviä itselleen laskentaprojekteista (TEHTY).
 - Käyttäjä pystyy etsimään laskentaprojekteja hakusanalla (TEHTY).
 - Sovelluksessa on käyttäjäsivut, jotka näyttävät jokaisesta käyttäjästä tilastoja ja käyttäjän varaamat tehtävät ja niiden tilan. (TEHTY)
-- Käyttäjä pystyy muuttamaan varaamiensa tehtäviensä tilaa (ei aloitettu, kesken, valmis, luovu tehtävästä) ja palauttamaan tehtäväänsä liittyviä lokitiedostoja, jotka varmentavat, että tehtävä on valmis. (TEHTY)
+- Käyttäjä pystyy muuttamaan varaamiensa tehtäviensä tilaa (ei aloitettu, kesken, valmis) ja palauttamaan tehtäväänsä liittyviä lokitiedostoja, jotka varmentavat, että tehtävä on valmis. (TEHTY)
 - Käyttäjä pystyy panemaan projektin holdiin ja aktivoimaan sen (TEHTY)
 - Sovelluksessa on projektikohtaiset sivut, jotka listaavat eri käyttäjien eri projekteille suorittamien tehtävien määrän (TEHTY).
 - Käyttäjä voi palauttaa projektiin liittyviä tuloksia ja sovellus varmentaa ne, jos mahdollista (TEHTY).
@@ -65,9 +65,30 @@ Indeksit hidastavat tietokantaan lisäämisoperaatioita, mutta tämä näkyy kä
 
 Indeksit lisäämällä on haluttu tehdä sovelluksesta nopea projekteihin osallistujille. On ajateltu, että harvoin suoritettavat ylläpito-operaatiot (kuten tehtävien generointi projektille) voivat kestää pidempään. Tämänhetkisissä käyttöskenaarioissa dataa tulee myös olemaan tietokannassa vähemmän kuin suorituskykytestitapauksessa.  
 
+## Sovelluksen käyttäjärooleista.
 
+Sovelluksella on ylläpitäjä, joka on todennäköisesti sellainen käyttäjä joka hallinnoi myös joitain projekteja. Tämän lisäksi voi olla muutama muu käyttäjä, joka on perustanut ja hallinnoi projekteja. Vain muutama käyttäjä käytännössä perustaa ja hallinnoi projekteja.
+Kaikki muut käyttäjät ovat projekteihin osallistujia.
+
+Jos halutaan perustaa uudentyyppisiä projekteja, niin tämän sovelluksen kannalta on väliä vain sillä millaisia lokitiedostoja projektien laskenta ohjelmistot tuottavat ja mitä tehtävien sisällöt ovat.
+
+On mahdollista, että lokitiedoston sisältö ja logiikka eroaa niin paljon ainoasta tällä hetkellä tuetusta projektimuodosta ”Powersum”, että sovellukseen joudutaan tekemään muutoksia ja kenties lisäämään uusi moduuli nykyisen powersum.py moduulin lisäksi, joka prosessoi uuden projektityypin lokitiedostot. Tämä on tuskin iso ongelma, koska laskentaohjelmiston kehittäminen vaatii ohjelmointia ja tarvittavat muutokset tämän sovellukseen ovat todennäköisesti pieniä pythonin merkkijonojen käsittelyyn liittyviä tehtäviä. Tällaiset muutokset ovat helppoja kokeneelle ohjelmoijalle.  Keskeinen tehtävä on suunnitella hyvä lokitiedostoformaatti laskentaohjelmistolle riippumatta siitä, miten laskentaohjelmisto sisäisesti toimii. Generoida käsin muutama lokitiedosto ja muuttaa ja testata tätä sovellusta vasten näitä lokitiedostoja. 
+
+Valtaosa käyttäjistä varaa tehtäviä, konfiguroi laskentaohjelmiston projektin parametrien mukaisesti ja palauttaa lokitiedostoja. 
+
+ ## Käyttäjän perustaminen
+ Käyttäjätunnuksen pitää olla uniikki. Sähkäpostiosoitteen ei tarvitse olla uniikksi, jotta jotkut käyttäjäy voivat perustaa useita käyttäjärooleja - esim. yhden jokaiselle tietokoneelle jossa he ajavat laskentaohjelmistoa. Salasanalle ei ole kompeksisuusvaatimuksia. 
+
+ ## Projektin perustaminen
+ Projektille pakollisia tietoja ovat uniikki nimi, tehtävien miniminumero ja maksiminumero. Tämän pisäksi voidaan ahtaa yhdestä tehtävästä indikatiivinen laskenta-aika ja projektin tyyppi. Tällä hetkellä ainoastaan powersum tyyppisille projekteille voi palauttaa tehtäviä. Lisäksi projektille voi antaa parametreja. Tarkoitus on että tehtäviä varannut käyttäjä käyttää näitä arvoja konfiguroidessaan laskentaohjelmistoa. Parametreja ei voi muuttaa projektin perustamisen jälkeen, koska jos projekteihin osallistuja ovat suorittaneet tehtäviä väärillä parametreilla, niin työ on mennyt hukkaan ja on parempi deletoida virheellinen projekti ja perustaa uusi oikeilla parametreilla (osa tehtävistä on tehty väärin). 
+
+Projektin perustamisen jälkeen projektin perustajan pitää generoida tehtävät projektille. Ajatus on, että generoitavien tehvävien väli on pienempi kuin tehtävien teoreettinen maksimi. jos tarvetta on, niin tehtäviä voidaan generoida myöhemmin lisää esim. yksinkertaisen python skriptin avulla joka lisää tehtäviä suoraan kantaan. Projektin tehtävät generoidaan muokkaa projektia sivulta. Perustettu projekti on tilassa ei aloitettu (Ei aloitettu) ja kun projektille on generoitu tehtävät niin se on tilassa käynnissä (Ongoing). Tämän jälkeen projektin perustaja voi laittaa projektin holdiin ja palauttaa holdista taas aktiiviseksi.
+
+## Projektin osallistuja.
+Projektin osallistuja perustaa käyttäjätunnuksen, selaa projekteja, varaa projekteista tehtäviä ja palauttaa lokitiedostoja. Lokitiedostot voivat sisältää ratkaisua tutkittaviin yhtälöihin ja sovellus varmistaa että ratkaisut ovat oikeita ja listaa löydetyt ratkaisut solutions sivulla. Palautetut lokitiedostot ja ratkaisut tallennetaan tietokantaan ja linkitetään käyttäjään ja palautettujen tehtävien tilaksi muutetaan tehty (Done).  
+ 
  ## Yleistä laskentaprojekteista
-Internetissä on joitain luonteeltaan hyvin rinnakkaistuvia lukuteoreettisia etsintäprojekteja. Tyypillisesti näissä etsitään alkulukuja. Esim. muotoa n!+1 olevia alkulukuja. Projektin tehtävät ovat kokonaislukuja. Jos käyttäjä saa tehtävän 20 000, niin hänen pitää client sovelluksella testata onko luku 20000!+1 alkuluku vai ei. Tämän vuoksi projektit ovat lukuvälejä, esim. 1 000 - 100 000 ja käyttäjät varaavat numeroita (tehtäviä) tältä lukuväliltä. Kun käyttäjät ovat validoineet saamansa tehtävät (numerot), niin he palauttavat lokitiedostoja. Serveri osaa näistä tulkita, mitkä tehtävät on tehty ja onko tuloksia löytynyt.
+Internetissä on joitain luonteeltaan hyvin rinnakkaistuvia lukuteoreettisia etsintäprojekteja (esim. https://www.mersenne.org/). Tyypillisesti näissä etsitään alkulukuja. Esim. muotoa n!+1 olevia alkulukuja. Projektin tehtävät ovat kokonaislukuja. Jos käyttäjä saa tehtävän 20 000, niin hänen pitää laskenta sovelluksella testata onko luku 20000!+1 alkuluku vai ei. Tämän vuoksi projektit ovat lukuvälejä, esim. 1 000 - 100 000 ja käyttäjät varaavat numeroita (tehtäviä) tältä lukuväliltä. Kun käyttäjät ovat validoineet saamansa tehtävät (numerot), niin he palauttavat lokitiedostoja. Serveri osaa näistä tulkita, mitkä tehtävät on tehty ja onko tuloksia löytynyt.
 
  ## Powersum projekteista
  Powersum projekteissa etsitään ratkaisuja seuraavanlaisiin kokonaislukuyhtälöihin:
@@ -90,9 +111,11 @@ right_terms = 4
 ```
 Kun tehtävät generoidaan, niin niiden pitää olla välillä Range min ja Range max.
 
-Hakemistosta testdata löytyy esimerkki client sovelluksen lokista, jossa on ilmoitettu muutama tehtävä tehdyksi ja muutama löydetty ratkaisu. Tämän voi palauttaa Return tasks toiminnallisuudella. Jos palautetaan sellaiselle projektille, jonka nimi vastaa lokitiedostossa joka rivin alussa olevaa projektin nimeä, niin sovellus kirjaa tehtävät tehdyksi.
+Hakemistosta testdata löytyy esimerkki client sovelluksen lokista, jossa on ilmoitettu muutama tehtävä tehdyksi ja muutama löydetty ratkaisu. Tämän voi palauttaa Return tasks toiminnallisuudella. Jos palautetaan sellaiselle projektille, jonka nimi vastaa lokitiedostossa joka rivin alussa olevaa projektin nimeä, niin sovellus kirjaa tehtävät tehdyksi. 
 
-Kannattaa kokeilla sovellusta Powersum7 nimisellä projektilla, koska tätä varten on testitiedosto. 
+Kannattaa kokeilla sovellusta Powersum7 nimisellä projektilla, koska tätä varten on testitiedosto. Tämä sovelluksen toiminta perustuu täysin lokitiedoston formaattiin.
+
+TODO: Lokitiedosto on allekirjoitettu ja sovellus pystyy verifioimaan, että se on validin laskentasovelluksen tuottama. Vaatii yksinkertaisia muutoksia laskentasovellukseen ja tämän sovelluksen muutokset pitää tehdä käsi kädessä laskentasovelluksen muutosten kanssa.   
 
 
 
