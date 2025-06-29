@@ -6,6 +6,11 @@
 
 <h2>Current active projects</h2>
 <hr />
+{% if not projects %}
+<p>No active projects found.</p>
+{% else %}
+<p>Found {{ projects|length }} active projects.</p>
+{% endif %}
 {% for project in projects %}
 <div class="item">
   <a href="/project/{{ project.id }}">{{ project.name }}</a>

@@ -1,3 +1,4 @@
+import re
 from flask import session, flash
 import projects
 
@@ -33,9 +34,17 @@ def process_powersum_log_row(log_row, project_id):
 
     if log_row.startswith(project["name"]):
         try:
-            content = int(log_row.split()[2])
-            projects.mark_task_done(content, user_id, project_id)
-            return True
+            m = re.search(r"\b(\d+)\b", log_row)
+            if not m:
+                raise ValueError(f"No integer found in row: {log_row!r}")
+            content = int(m.group(1))
+            task = projects.get_task(content, project_id)
+            if task:
+                projects.mark_task_done(content, user_id, project_id)
+                return True
+            else:
+                print(f"Error processing row '{log_row}': Task not found.")
+                return False
         except (ValueError, IndexError) as e:
             print(f"Error processing row '{log_row}': {e}")
             return False

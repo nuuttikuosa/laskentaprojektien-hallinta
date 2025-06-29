@@ -61,7 +61,8 @@
   {% if project.status != 'Deleted' %}
   {% if project.status == 'On Hold' %}
   <a href="/reactivate/{{ project.id }}">Reactivate project</a>
-  {% else %}
+  {% endif %}
+  {% if project.status == 'Ongoing' %}
   <a href="/hold/{{ project.id }}">Put project on hold</a>
   {% endif %}
   <a href="/remove/{{ project.id }}">Remove project</a>

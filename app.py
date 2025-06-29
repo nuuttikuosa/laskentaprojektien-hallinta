@@ -110,6 +110,9 @@ def set_project_on_hold(project_id):
     project = projects.get_project(project_id)
     if not project:
         abort(404)
+    if project["status"] != "Ongoing":
+        flash("Cannot put a project on hold. Wrong current state.", "error")
+        return redirect("/project/" + str(project["id"]))
     if session["user_id"] != project["user_id"]:
         abort(403)
 
@@ -118,6 +121,7 @@ def set_project_on_hold(project_id):
 
     if request.method == "POST":
         check_csrf()
+
         if "continue" in request.form:
             projects.update_project_status(
                 project["id"], constants.PROJECT_STATUS_ON_HOLD)
@@ -315,7 +319,7 @@ def reserve_tasks(project_id):
 @app.route("/return", methods=["GET", "POST"])
 def return_tasks():
     require_login()
-    project_list = projects.get_projects()
+    project_list = projects.get_all_projects()
 
     if request.method == "GET":
         return render_template("return_tasks.html", projects=project_list,
@@ -438,10 +442,9 @@ def new_project():
         parameter_names = request.form.getlist("parameter_names[]")
         parameter_values = request.form.getlist("parameter_values[]")
 
-        try:
-            project_id = projects.add_project(name, range_min, range_max,
-                                              description, user_id, classes)
-        except sqlite3.IntegrityError:
+        project_id = projects.add_project(name, range_min, range_max,
+                                          description, user_id, classes)
+        if not project_id:
             flash("ERROR: Project name already exists", "error")
             return redirect("/new_project")
 

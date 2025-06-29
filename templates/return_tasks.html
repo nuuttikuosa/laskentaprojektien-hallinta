@@ -7,28 +7,30 @@
 Upload a log file.
 <small>Max file size: {{ max_log_file_size // (1024*1024) }} MB</small>
 
-
+{% if not projects %}
+<p>No active projects found.</p>
+{% else %}
 
 <form action="/return" method="post" enctype="multipart/form-data">
   <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
   <input type="hidden" name="MAX_FILE_SIZE" value="{{max_log_file_size}}" />
   <p>
-  <label for="project_id">Select project:</label>
-  <select id="project_id" name="project_id" required>
-    {% for project in projects %}
-    <option value="{{ project.id }}">{{ project.name }}</option>
-    {% endfor %}
-  </select>
-</p>
+    <label for="project_id">Select project:</label>
+    <select id="project_id" name="project_id" required>
+      {% for project in projects %}
+      <option value="{{ project.id }}">{{ project.name }}</option>
+      {% endfor %}
+    </select>
+  </p>
   <div>
     <label for="log_file" class="custom-file-label">Choose file</label>
     <input type="file" id="log_file" name="log_file" accept=".txt" required />
   </div>
   <p>
-  <button type="submit">Return file</button>
+    <button type="submit">Return file</button>
   </p>
 </form>
-
+{% endif %}
 <hr />
 {% if results %}
 <h2> Validation results</h2>
@@ -49,4 +51,5 @@ Upload a log file.
   </tbody>
 </table>
 {% endif %}
+
 {% endblock %}

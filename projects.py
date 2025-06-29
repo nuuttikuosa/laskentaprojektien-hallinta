@@ -40,6 +40,15 @@ def get_projects(page, page_size):
     return db.query(sql, [limit, offset])
 
 
+def get_all_projects():
+    sql = """SELECT p.id, p.name
+            FROM projects p, project_statuses s
+            WHERE p.status_id = s.id AND
+                  s.name <> 'Deleted'
+            ORDER BY p.id DESC"""
+    return db.query(sql)
+
+
 def add_project(name, range_min, range_max, description, user_id, classes):
     sql = """INSERT INTO projects
              (name, range_min, range_max, description, user_id, status_id)
@@ -201,3 +210,11 @@ def project_count():
                    s.name <> 'Deleted'"""
     result = db.query(sql)
     return result[0][0] if result else 0
+
+
+def get_task(content,  project_id):
+    sql = """SELECT t.id, t.content, t.updated_at, t.user_id
+             FROM tasks t
+             WHERE t.content = ? AND t.project_id = ?"""
+    result = db.query(sql, [content,  project_id])
+    return result[0] if result else None

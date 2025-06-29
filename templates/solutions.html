@@ -5,6 +5,11 @@
 {% block content %}
 <h1>All found solutions</h1>
 <hr />
+<p>Found {{ solutions|length }} solutions.</p>
+
+{% if not solutions %}
+<p>No solutions found.</p>
+{% endif %}
 {% for solution in solutions %}
 <p>
     {{ solution.content }} — Found by <a href="/user/{{ solution.user_id }}">{{ solution.username }}</a> in project <a
