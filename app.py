@@ -14,7 +14,7 @@ import constants
 import powersum
 
 app = Flask(__name__)
-app.secret_key = config.secret_key
+app.secret_key = config.SECRET_KEY
 
 
 def require_login():
