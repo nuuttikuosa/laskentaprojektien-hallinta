@@ -10,9 +10,9 @@ def create_user(username, email, bio, password):
     # the passwords of all users.
     # To fix this, we should store passwords as hashes using a secure hashing algorithm.
     # The following line is commented out to avoid using the insecure password storage.
-    password_hash = generate_password_hash(password)
+    # password_hash = generate_password_hash(password)
 
-    # password_hash = password  # Insecure storage, for demonstration purposes only
+    password_hash = password  # Insecure storage, for demonstration purposes only
     sql = "INSERT INTO users (username, email, bio, password_hash) VALUES (?, ?, ?, ?)"
     db.execute(sql, [username, email, bio, password_hash])
 

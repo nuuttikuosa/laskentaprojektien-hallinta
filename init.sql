@@ -9,9 +9,9 @@ DELETE FROM users;
 
 
 INSERT INTO users (id, username, password_hash) VALUES
-    (0, 'admin', 'admin'),
-    (1, 'user1', 'user1'),
-    (2, 'user2', 'user2');
+    (1, 'admin', 'admin'),
+    (2, 'user1', 'user1'),
+    (3, 'user2', 'user2');
 
 INSERT INTO project_statuses (id, name) VALUES
     (0, 'Not Started'),

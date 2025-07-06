@@ -109,7 +109,7 @@ def remove_project(project_id):
 
         # Uncomment the following line to enable CSRF protection
 
-        # check_csrf()
+        # FLAW #2 fix: check_csrf()
 
         if "continue" in request.form:
             projects.update_project_status(
@@ -511,63 +511,72 @@ def register():
 
 
 @app.route("/login", methods=["GET", "POST"])
-# def login():
-#     if request.method == "GET":
-#         return render_template("login.html")
-#     if request.method == "POST":
-#         username = request.form["username"]
-#         password = request.form["password"]
-#         user_id = users.check_login(username, password)
-#         if not user_id:
-#             flash("ERROR: Wrong username or password", "error")
-#             return render_template("login.html")
-#         session["csrf_token"] = secrets.token_hex(16)
-#         session["user_id"] = user_id
-#         session["username"] = username
-#         return redirect("/")
-def login_new():
+# FLAW 5 : the application allows unlimited login attempts
+# and no account lockout mechanism is implemented.
+# This could allow an attacker to brute-force user accounts.
+# To fix this, we should implement a maximum number of login attempts
+# and lockout mechanism after a certain number of failed attempts.
+# Uncomment the following lines to implement a simple lockout mechanism
+# FLAW 6 : the application does not log login attempts,
+# which could help in detecting and preventing brute-force attacks.
+def login():
     if request.method == "GET":
         return render_template("login.html")
-
-    username = request.form["username"]
-    password = request.form["password"]
-
-    user = users.get_user_by_username(username)
-    now = datetime.datetime.now(datetime.timezone.utc)
-    if user is None:
-        flash("Wrong username or password", "error")
-        users.log_login_attempt(username, None, False)
-        return render_template("login.html")
-
-    if user["lockout_until"] is not None:
-        locked_until = datetime.datetime.fromisoformat(user["lockout_until"])
-        if now < locked_until:
-            wait = (locked_until - now).seconds // 60 + 1
-            flash(f"Account locked. Try again in {wait} minute(s).", "error")
-            users.log_login_attempt(username, user["id"], False)
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        user_id = users.check_login(username, password)
+        if not user_id:
+            flash("ERROR: Wrong username or password", "error")
             return render_template("login.html")
-    if check_password_hash(user["password_hash"], password):
-        users.update_failed_logins(user["id"], 0, None)
-        users.log_login_attempt(username, user["id"], True)
         session["csrf_token"] = secrets.token_hex(16)
-        session["user_id"] = user["id"]
+        session["user_id"] = user_id
         session["username"] = username
         return redirect("/")
+# FLAW 5 & 6 fix implemented here
+# def login_new():
+#     if request.method == "GET":
+#         return render_template("login.html")
 
-    new_count = user["failed_logins"] + 1
+#     username = request.form["username"]
+#     password = request.form["password"]
 
-    if new_count >= 3:
-        blocks = (new_count // 3)
-        # back-off = 5min, 10min, 20min, 40min
-        backoff = config.LOCKOUT_BASE * (2 ** (blocks - 1))
-        lockout_until = (now + backoff).isoformat()
-    else:
-        lockout_until = user["lockout_until"]
+#     user = users.get_user_by_username(username)
+#     now = datetime.datetime.now(datetime.timezone.utc)
+#     if user is None:
+#         flash("Wrong username or password", "error")
+#         users.log_login_attempt(username, None, False)
+#         return render_template("login.html")
 
-    users.update_failed_logins(user["id"], new_count, lockout_until)
-    users.log_login_attempt(username, user["id"], False)
-    flash("Wrong username or password", "error")
-    return render_template("login.html")
+#     if user["lockout_until"] is not None:
+#         locked_until = datetime.datetime.fromisoformat(user["lockout_until"])
+#         if now < locked_until:
+#             wait = (locked_until - now).seconds // 60 + 1
+#             flash(f"Account locked. Try again in {wait} minute(s).", "error")
+#             users.log_login_attempt(username, user["id"], False)
+#             return render_template("login.html")
+#     if check_password_hash(user["password_hash"], password):
+#         users.update_failed_logins(user["id"], 0, None)
+#         users.log_login_attempt(username, user["id"], True)
+#         session["csrf_token"] = secrets.token_hex(16)
+#         session["user_id"] = user["id"]
+#         session["username"] = username
+#         return redirect("/")
+
+#     new_count = user["failed_logins"] + 1
+
+#     if new_count >= 3:
+#         blocks = (new_count // 3)
+#         # back-off = 5min, 10min, 20min, 40min
+#         backoff = config.LOCKOUT_BASE * (2 ** (blocks - 1))
+#         lockout_until = (now + backoff).isoformat()
+#     else:
+#         lockout_until = user["lockout_until"]
+
+#     users.update_failed_logins(user["id"], new_count, lockout_until)
+#     users.log_login_attempt(username, user["id"], False)
+#     flash("Wrong username or password", "error")
+#     return render_template("login.html")
 
 
 @app.route("/logout", methods=["GET"])
