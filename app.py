@@ -1,8 +1,10 @@
 import time
 import math
 
+import datetime
 import sqlite3
 import secrets
+from werkzeug.security import check_password_hash
 import markupsafe
 from flask import Flask
 from flask import g, make_response, flash, redirect, render_template, request, session, abort
@@ -84,18 +86,31 @@ def show_project(project_id):
 
 @app.route("/remove/<int:project_id>", methods=["GET", "POST"])
 def remove_project(project_id):
-    require_login()
+    # FLAW # 1: Allow project removal by any user
+    # This is a security risk, as it allows any user to remove any project.
+    # To fix this, we should restrict project removal to the owner only.
+
+    # Uncomment the following lines if you want to restrict project removal to the logged in project owner only
+
+    # FLAW #1 fix: require_login()
     project = projects.get_project(project_id)
     if not project:
         abort(404)
-    if session["user_id"] != project["user_id"]:
-        abort(403)
+    # FLAW #1 fix: if session["user_id"] != project["user_id"]:
+    # FLAW #1 fix:    abort(403)
 
     if request.method == "GET":
         return render_template("remove.html", project=project)
 
     if request.method == "POST":
-        check_csrf()
+        # FLAW # 2: No CSRF protection for project removal
+        # This could allow an attacker to trick a user into removing a project without their consent
+        # To fix this, we should implement CSRF protection for project removal.
+
+        # Uncomment the following line to enable CSRF protection
+
+        # check_csrf()
+
         if "continue" in request.form:
             projects.update_project_status(
                 project["id"], constants.PROJECT_STATUS_DELETED)
@@ -496,23 +511,63 @@ def register():
 
 
 @app.route("/login", methods=["GET", "POST"])
-def login():
+# def login():
+#     if request.method == "GET":
+#         return render_template("login.html")
+#     if request.method == "POST":
+#         username = request.form["username"]
+#         password = request.form["password"]
+#         user_id = users.check_login(username, password)
+#         if not user_id:
+#             flash("ERROR: Wrong username or password", "error")
+#             return render_template("login.html")
+#         session["csrf_token"] = secrets.token_hex(16)
+#         session["user_id"] = user_id
+#         session["username"] = username
+#         return redirect("/")
+def login_new():
     if request.method == "GET":
         return render_template("login.html")
 
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+    username = request.form["username"]
+    password = request.form["password"]
 
-        user_id = users.check_login(username, password)
-        if not user_id:
-            flash("ERROR: Wrong username or password", "error")
+    user = users.get_user_by_username(username)
+    now = datetime.datetime.now(datetime.timezone.utc)
+    if user is None:
+        flash("Wrong username or password", "error")
+        users.log_login_attempt(username, None, False)
+        return render_template("login.html")
+
+    if user["lockout_until"] is not None:
+        locked_until = datetime.datetime.fromisoformat(user["lockout_until"])
+        if now < locked_until:
+            wait = (locked_until - now).seconds // 60 + 1
+            flash(f"Account locked. Try again in {wait} minute(s).", "error")
+            users.log_login_attempt(username, user["id"], False)
             return render_template("login.html")
-
+    if check_password_hash(user["password_hash"], password):
+        users.update_failed_logins(user["id"], 0, None)
+        users.log_login_attempt(username, user["id"], True)
         session["csrf_token"] = secrets.token_hex(16)
-        session["user_id"] = user_id
+        session["user_id"] = user["id"]
         session["username"] = username
         return redirect("/")
+
+    new_count = user["failed_logins"] + 1
+
+    if new_count >= 3:
+        blocks = (new_count // 3)
+        # back-off = 5min, 10min, 20min, 40min
+        backoff = config.LOCKOUT_BASE * (2 ** (blocks - 1))
+        lockout_until = (now + backoff).isoformat()
+    else:
+        lockout_until = user["lockout_until"]
+
+    users.update_failed_logins(user["id"], new_count, lockout_until)
+    users.log_login_attempt(username, user["id"], False)
+    flash("Wrong username or password", "error")
+    return render_template("login.html")
 
 
 @app.route("/logout", methods=["GET"])

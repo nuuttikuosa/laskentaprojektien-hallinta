@@ -19,7 +19,10 @@ CREATE TABLE users (
     password_hash TEXT,
     email TEXT,
     bio TEXT,
-    image BLOB
+    image BLOB,
+    failed_logins INTEGER NOT NULL DEFAULT 0,
+    lockout_until TEXT
+
 );
 
 CREATE TABLE project_statuses (
@@ -84,6 +87,14 @@ CREATE TABLE solutions (
     user_id INTEGER REFERENCES users,
     content TEXT,
     created_at TEXT
+);
+
+CREATE TABLE login_audit (
+  id            INTEGER PRIMARY KEY,
+  username      TEXT      NOT NULL,
+  user_id       INTEGER   NULL,
+  success       INTEGER   NOT NULL,    -- 1 = success, 0 = failure
+  attempted_at  TEXT      NOT NULL     -- store as an ISO timestamp
 );
 
 CREATE INDEX idx_tasks_project_id ON tasks(project_id);

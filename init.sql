@@ -1,6 +1,17 @@
 DELETE FROM classes;
 DELETE FROM project_statuses;
 DELETE FROM task_statuses;
+DELETE FROM users;
+
+-- FLAW # 4: default user credentials
+-- This is a security risk, as it allows anyone to log in with the default credentials.
+-- To fix this, we should remove the default user credentials and require users to create their own accounts.
+
+
+INSERT INTO users (id, username, password_hash) VALUES
+    (0, 'admin', 'admin'),
+    (1, 'user1', 'user1'),
+    (2, 'user2', 'user2');
 
 INSERT INTO project_statuses (id, name) VALUES
     (0, 'Not Started'),
